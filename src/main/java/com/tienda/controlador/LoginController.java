@@ -1,30 +1,21 @@
 // Paquete donde se ubicarán tus controladores
 package com.tienda.controlador;
 
-import com.tienda.modelo.Usuario;
-import com.tienda.servicio.UsuarioService;
+// import com.example.demo.servicio.UsuarioService; // Eliminado: no se usa directamente para autenticar
 import jakarta.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
-import java.util.Optional;
+import org.springframework.web.bind.annotation.RequestParam; // Se mantiene por si se necesita para algo más.
+// import org.springframework.web.servlet.mvc.support.RedirectAttributes; // Eliminado: no se usa
 
 @Controller
 public class LoginController {
 
-    @Autowired
-    private UsuarioService usuarioService;
-
     /**
      * Muestra la página de login.
-     * 
      * @param model El objeto Model para pasar datos a la vista.
-     * @param error Si hay un parámetro 'error' en la URL (indicando fallo de
-     *              login).
+     * @param error Si hay un parámetro 'error' en la URL (indicando fallo de login).
      * @return El nombre de la plantilla Thymeleaf para la página de login.
      */
     @GetMapping("/login")
@@ -36,63 +27,15 @@ public class LoginController {
     }
 
     /**
-     * Procesa el login del usuario (autenticación manual).
-     * 
-     * @param correo     El correo electrónico ingresado.
-     * @param contrasena La contraseña ingresada.
-     * @param session    La sesión HTTP para almacenar el usuario autenticado.
-     * @param model      El objeto Model para pasar mensajes de error.
-     * @return Redirección a la página principal si es exitoso, o vuelve al login
-     *         con error.
-     */
-    @PostMapping("/login")
-    public String processLogin(
-            @RequestParam("correo") String correo,
-            @RequestParam("contrasena") String contrasena,
-            HttpSession session,
-            Model model) {
-
-        // Autenticar al usuario usando el servicio
-        Optional<Usuario> usuarioOptional = usuarioService.authenticateUser(correo, contrasena);
-
-        if (usuarioOptional.isPresent()) {
-            Usuario usuario = usuarioOptional.get();
-            // Guardar el usuario en la sesión
-            session.setAttribute("usuarioLogueado", usuario);
-            // Redirigir a la página principal
-            return "redirect:/";
-        } else {
-            // Credenciales incorrectas
-            model.addAttribute("error", "Correo o contraseña incorrectos.");
-            return "login";
-        }
-    }
-
-    /**
-     * Cierra la sesión del usuario manualmente.
-     * 
+     * Cierra la sesión del usuario.
+     * Este método es manejado por Spring Security. El controlador solo lo define.
      * @param session La sesión HTTP a invalidar.
      * @return Una redirección a la página de inicio.
      */
-    @PostMapping("/logout")
-    public String logout(HttpSession session, jakarta.servlet.http.HttpServletResponse response) {
-        // Limpiar atributos específicos antes de invalidar
-        session.removeAttribute("usuarioLogueado");
-        
-        // Invalidar la sesión manualmente
-        session.invalidate();
-        
-        // Agregar headers para evitar caché
-        response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-        response.setHeader("Pragma", "no-cache");
-        response.setDateHeader("Expires", 0);
-        
-        return "redirect:/login?logout";
-    }
-    
-    // Mantener GET para compatibilidad, pero redirigir a login
     @GetMapping("/logout")
-    public String logoutGet() {
-        return "redirect:/login";
+    public String logout(HttpSession session) {
+        // Spring Security maneja la invalidación de la sesión y la redirección.
+        // Este método es principalmente para que el mapeo exista.
+        return "redirect:/";
     }
 }

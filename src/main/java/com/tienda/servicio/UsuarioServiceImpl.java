@@ -4,6 +4,7 @@ package com.tienda.servicio;
 import com.tienda.modelo.Usuario;
 import com.tienda.repositorio.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,6 +16,9 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public List<Usuario> findAllUsuarios() {
@@ -31,8 +35,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         Optional<Usuario> usuarioOptional = usuarioRepository.findByCorreo(correo);
         if (usuarioOptional.isPresent()) {
             Usuario usuario = usuarioOptional.get();
-            // Comparación directa de contraseñas (sin encriptación)
-            if (contrasena.equals(usuario.getContrasena())) {
+            if (passwordEncoder.matches(contrasena, usuario.getContrasena())) { // Comparar contraseña hasheada
                 return Optional.of(usuario);
             }
         }
@@ -50,7 +53,8 @@ public class UsuarioServiceImpl implements UsuarioService {
             return null;
         }
 
-        // Guardar contraseña sin encriptar (solo para desarrollo)
+        String hashedPassword = passwordEncoder.encode(usuario.getContrasena());
+        usuario.setContrasena(hashedPassword);
         usuario.setTipo(Usuario.TipoUsuario.usuario); // Por defecto, el tipo de usuario es 'usuario'
 
         return usuarioRepository.save(usuario);
@@ -91,6 +95,9 @@ public class UsuarioServiceImpl implements UsuarioService {
                 // Si no se proporciona una nueva contraseña, mantener la existente
                 if (usuario.getContrasena() == null || usuario.getContrasena().isEmpty()) {
                     usuario.setContrasena(existingUser.getContrasena());
+                } else {
+                    // Encriptar la nueva contraseña
+                    usuario.setContrasena(passwordEncoder.encode(usuario.getContrasena()));
                 }
 
                 // Validar DNI y Correo solo si han cambiado y ya existen
@@ -101,7 +108,6 @@ public class UsuarioServiceImpl implements UsuarioService {
                     throw new RuntimeException("El correo electrónico ya está registrado por otro usuario.");
                 }
             } else {
-                // Si el ID existe pero el usuario no se encuentra, es un caso inusual o error
                 throw new RuntimeException("Usuario a editar no encontrado.");
             }
         } else {
@@ -112,7 +118,8 @@ public class UsuarioServiceImpl implements UsuarioService {
             if (existsByCorreo(usuario.getCorreo())) {
                 throw new RuntimeException("El correo electrónico ya está registrado.");
             }
-            // Guardar contraseña sin encriptar
+            // Encriptar contraseña al crear nuevo usuario
+            usuario.setContrasena(passwordEncoder.encode(usuario.getContrasena()));
         }
 
         return usuarioRepository.save(usuario);
@@ -127,4 +134,5 @@ public class UsuarioServiceImpl implements UsuarioService {
     public void deleteUsuario(Long id) {
         usuarioRepository.deleteById(Objects.requireNonNull(id));
     }
+
 }
