@@ -66,9 +66,13 @@
                         <option th:each="tal : ${tallas}" th:value="${tal}" th:text="${tal}" th:selected="${tal == selectedTalla}"></option>
                     </select>
                 </div>
-                <div class="md:col-span-1">
+                <div class="md:col-span-1 relative">
                     <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Buscar:</label>
-                    <input type="text" id="search" name="search" th:value="${searchTerm}" placeholder="Buscar por nombre o descripción..." class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2">
+                    <input type="text" id="search" name="search" th:value="${searchTerm}" placeholder="Buscar por nombre o descripción..." autocomplete="off" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2">
+                    <!-- Contenedor de sugerencias (se llenará desde JS) -->
+                    <div id="suggestions" class="absolute left-0 right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-50 hidden max-h-60 overflow-auto">
+                        <ul id="suggestions-list" class="divide-y divide-gray-100"></ul>
+                    </div>
                 </div>
                 <div class="md:col-span-4 flex justify-end">
                     <button type="submit" class="bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-6 rounded-xl transition duration-300 ease-in-out transform hover:scale-105 flex items-center gap-2">
@@ -84,8 +88,13 @@
         <div th:if="${#lists.isEmpty(productos)}" class="text-center text-gray-600 text-xl py-10">
             No se encontraron productos con los criterios de búsqueda.
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            <div th:each="producto : ${productos}" class="bg-white rounded-2xl overflow-hidden card-shadow hover:shadow-xl transition-shadow duration-300 ease-in-out">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div th:each="producto : ${productos}" class="bg-white rounded-2xl overflow-hidden card-shadow hover:shadow-xl transition-shadow duration-300 ease-in-out product-item"
+              th:data-nombre="${producto.nombre}"
+              th:data-descripcion="${producto.descripcion}"
+              th:data-categoria="${producto.categoria}"
+              th:data-genero="${producto.genero}"
+              th:data-talla="${producto.talla}">
                 <img th:src="${producto.imagenUrl != null and producto.imagenUrl != '' ? producto.imagenUrl : 'https://placehold.co/400x300/E0E0E0/6A11CB?text=Producto'}"
                      alt="Imagen del producto" class="w-full h-48 object-cover object-center">
                 <div class="p-5">
@@ -273,6 +282,110 @@
             if (event.target == modal) {
                 modal.classList.add('hidden');
             }
+        }
+
+        // ==========================
+        // Búsqueda en tiempo real
+        // - Case-insensitive
+        // - Debounce
+        // - Sugerencias
+        // ==========================
+
+        function debounce(fn, delay) {
+            let timer = null;
+            return function(...args) {
+                clearTimeout(timer);
+                timer = setTimeout(() => fn.apply(this, args), delay);
+            };
+        }
+
+        const searchInput = document.getElementById('search');
+        const suggestionsBox = document.getElementById('suggestions');
+        const suggestionsList = document.getElementById('suggestions-list');
+
+        function normalize(text) {
+            return (text || '').toString().toLowerCase();
+        }
+
+        function filterProducts(query) {
+            const q = normalize(query).trim();
+            const items = document.querySelectorAll('.product-item');
+            let matchesForSuggestions = [];
+
+            items.forEach(item => {
+                const nombre = normalize(item.dataset.nombre);
+                const descripcion = normalize(item.dataset.descripcion);
+                const categoria = normalize(item.dataset.categoria);
+                const genero = normalize(item.dataset.genero);
+                const talla = normalize(item.dataset.talla);
+
+                const hayCoincidencia = q === '' || nombre.includes(q) || descripcion.includes(q) || categoria.includes(q) || genero.includes(q) || talla.includes(q);
+
+                item.style.display = hayCoincidencia ? '' : 'none';
+
+                if (hayCoincidencia && q !== '') {
+                    // Preferir nombres que contienen el query para sugerencias
+                    if (nombre.includes(q)) {
+                        matchesForSuggestions.push({name: item.dataset.nombre, element: item});
+                    }
+                }
+            });
+
+            populateSuggestions(matchesForSuggestions.slice(0, 6), q);
+        }
+
+        function populateSuggestions(matches, q) {
+            suggestionsList.innerHTML = '';
+            if (!q || matches.length === 0) {
+                suggestionsBox.classList.add('hidden');
+                return;
+            }
+
+            matches.forEach(m => {
+                const li = document.createElement('li');
+                li.className = 'px-3 py-2 hover:bg-gray-50 cursor-pointer';
+                li.textContent = m.name;
+                li.addEventListener('click', () => {
+                    // Mostrar solo el producto seleccionado y hacer scroll hacia él
+                    m.element.style.display = '';
+                    m.element.scrollIntoView({behavior: 'smooth', block: 'center'});
+                    flashHighlight(m.element);
+                    suggestionsBox.classList.add('hidden');
+                    searchInput.value = m.name;
+                });
+                suggestionsList.appendChild(li);
+            });
+
+            suggestionsBox.classList.remove('hidden');
+        }
+
+        function flashHighlight(el) {
+            el.classList.add('ring-4', 'ring-orange-300');
+            setTimeout(() => el.classList.remove('ring-4', 'ring-orange-300'), 1600);
+        }
+
+        const debouncedFilter = debounce(function() {
+            const val = searchInput.value || '';
+            filterProducts(val);
+        }, 250);
+
+        // Eventos
+        if (searchInput) {
+            searchInput.addEventListener('input', function(e) {
+                debouncedFilter();
+            });
+
+            // ocultar sugerencias al perder foco (dar una pequeña ventana para clicks)
+            searchInput.addEventListener('blur', function() {
+                setTimeout(() => suggestionsBox.classList.add('hidden'), 150);
+            });
+
+            searchInput.addEventListener('focus', function() {
+                const q = searchInput.value || '';
+                if (q.trim() !== '') {
+                    filterProducts(q);
+                }
+            });
         }
     </script>
 </body>
