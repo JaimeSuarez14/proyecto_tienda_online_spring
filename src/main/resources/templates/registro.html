@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plaza China - Registro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+    <div class="bg-white p-10 rounded-2xl shadow-2xl max-w-xl w-full">
+        <h1 class="text-3xl font-extrabold text-center text-gray-800 mb-1">PLAZA CHINA</h1>
+        <p class="text-center text-gray-600 mb-6 text-lg">Crear cuenta</p>
+
+        <div th:if="${error}" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-6" role="alert">
+            <span th:text="${error}"></span>
+        </div>
+
+        <form th:action="@{/registro}" method="post" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="dni" class="block text-sm font-medium text-gray-700">DNI</label>
+                    <input type="text" id="dni" name="dni" required placeholder="12345678"
+                           pattern="[0-9]{8,20}" title="Solo números entre 8 y 20 caracteres"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-orange-400 focus:outline-none"
+                           th:value="${usuario.dni}">
+                </div>
+                <div>
+                    <label for="nombre" class="block text-sm font-medium text-gray-700">Nombre</label>
+                    <input type="text" id="nombre" name="nombre" required placeholder="Tu nombre"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-orange-400 focus:outline-none"
+                           th:value="${usuario.nombre}">
+                </div>
+                <div>
+                    <label for="apellido" class="block text-sm font-medium text-gray-700">Apellido</label>
+                    <input type="text" id="apellido" name="apellido" required placeholder="Tu apellido"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-orange-400 focus:outline-none"
+                           th:value="${usuario.apellido}">
+                </div>
+                <div>
+                    <label for="correo" class="block text-sm font-medium text-gray-700">Correo Electrónico</label>
+                    <input type="email" id="correo" name="correo" required placeholder="correo@ejemplo.com"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-orange-400 focus:outline-none"
+                           th:value="${usuario.correo}">
+                </div>
+            </div>
+
+            <div>
+                <label for="contrasena" class="block text-sm font-medium text-gray-700">Contraseña</label>
+                <input type="password" id="contrasena" name="contrasena" required minlength="6"
+                       placeholder="Mínimo 6 caracteres"
+                       class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-orange-400 focus:outline-none">
+            </div>
+
+        <div class="flex items-center mt-2">
+            <input id="politicas" name="politicas" type="checkbox" required class="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded">
+            <label for="politicas" class="ml-2 block text-sm text-gray-700">
+                Acepto las
+                <button type="button" onclick="document.getElementById('modal-politicas').classList.remove('hidden')" class="text-red-500 underline hover:text-orange-600">Políticas de Privacidad</button>
+            </label>
+        </div>
+
+            <button type="submit"
+                    class="w-full mt-2 py-3 rounded-md bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold hover:scale-105 transition">
+                REGISTRARME
+            </button>
+        </form>
+
+        <p class="mt-6 text-center text-sm text-gray-600">
+            ¿Ya tienes una cuenta?
+            <a href="/login" class="text-red-500 hover:underline font-semibold">Inicia sesión aquí</a>
+        </p>
+    </div>
+
+    <!-- Modal de Políticas de Privacidad -->
+    <div id="modal-politicas" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50 hidden">
+        <div class="bg-white rounded-lg shadow-lg max-w-lg w-full p-8 relative">
+            <h2 class="text-2xl font-bold mb-4 text-gray-800">Políticas de Privacidad</h2>
+            <div class="text-gray-700 text-sm max-h-72 overflow-y-auto mb-6">
+                <p>Tu privacidad es importante para nosotros. Al registrarte, aceptas que tus datos serán utilizados únicamente para la gestión de tu cuenta y la prestación de nuestros servicios, conforme a la legislación vigente. No compartiremos tu información con terceros sin tu consentimiento.</p>
+                <ul class="list-disc pl-5 mt-2">
+                    <li>Recopilamos datos personales solo para fines de registro y contacto.</li>
+                    <li>Protegemos tu información con medidas de seguridad adecuadas.</li>
+                    <li>Puedes solicitar la eliminación o modificación de tus datos en cualquier momento.</li>
+                </ul>
+                <p class="mt-2">Para más información, contáctanos a través de nuestro formulario de contacto.</p>
+            </div>
+            <button onclick="document.getElementById('modal-politicas').classList.add('hidden')" class="absolute top-2 right-2 text-gray-400 hover:text-red-500 text-2xl font-bold">&times;</button>
+            <button onclick="document.getElementById('modal-politicas').classList.add('hidden')" class="w-full py-2 mt-2 rounded bg-orange-500 text-white font-semibold hover:bg-orange-600 transition">Cerrar</button>
+        </div>
+    </div>
+
+    <script>
+        // Validación para permitir solo números en el campo DNI
+        document.getElementById('dni').addEventListener('input', function (e) {
+            e.target.value = e.target.value.replace(/[^0-9]/g, '');
+        });
+    </script>
+
+</body>
+</html>
