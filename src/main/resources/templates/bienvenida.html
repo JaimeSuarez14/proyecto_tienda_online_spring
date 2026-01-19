@@ -67,11 +67,9 @@
                 <i class="bi bi-cart"></i>
                 <span th:if="${carritoCount > 0}" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center" th:text="${carritoCount}">0</span>
             </a>
-            <form method="post" action="/logout" class="inline">
-                <button type="submit" class="text-red-600 hover:text-red-800 font-medium flex items-center gap-1">
-                    <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
-                </button>
-            </form>
+            <button onclick="showLogoutConfirmation()" class="text-red-600 hover:text-red-800 font-medium flex items-center gap-1">
+                <i class="bi bi-box-arrow-right"></i> Cerrar Sesión
+            </button>
         </div>
     </nav>
 
@@ -216,6 +214,29 @@
         </div>
     </div>
 
+    <!-- Modal de Confirmación de Logout (antes del cierre de </body>) -->
+    <div id="confirmLogoutModal" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 hidden">
+        <div class="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full relative">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-orange-100 mb-4">
+                    <i class="bi bi-question-circle text-orange-600 text-4xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-2">¿Cerrar Sesión?</h3>
+                <p class="text-gray-600 mb-6">¿Estás seguro de que deseas cerrar tu sesión?</p>
+                <div class="flex gap-4 justify-center">
+                    <button onclick="hideLogoutConfirmation()" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-xl transition duration-300">
+                        Cancelar
+                    </button>
+                    <form method="post" action="/logout" class="inline">
+                        <button type="submit" class="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-bold py-2 px-6 rounded-xl transition duration-300 ease-in-out transform hover:scale-105">
+                            Sí, cerrar sesión
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         let slideIndex = 0;
         const slides = document.querySelectorAll('.carousel-slide');
@@ -273,6 +294,14 @@
 
         function hideProductDetailsModal() {
             document.getElementById('productDetailsModal').classList.add('hidden');
+        }
+
+        function showLogoutConfirmation() {
+            document.getElementById('confirmLogoutModal').classList.remove('hidden');
+        }
+
+        function hideLogoutConfirmation() {
+            document.getElementById('confirmLogoutModal').classList.add('hidden');
         }
 
         showSlides();

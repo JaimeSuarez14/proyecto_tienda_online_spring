@@ -76,5 +76,56 @@
             
     </div>
 
+    <!-- Modal de Confirmación de Logout -->
+    <div id="logoutModal" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 hidden">
+        <div class="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full relative animate-bounce-in">
+            <div class="text-center">
+                <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-4">
+                    <i class="bi bi-check-circle text-green-600 text-4xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800 mb-2">Sesión Cerrada</h3>
+                <p class="text-gray-600 mb-6">Has cerrado sesión exitosamente. ¡Hasta pronto!</p>
+                <button onclick="closeLogoutModal()" class="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-2 px-6 rounded-xl transition duration-300 ease-in-out transform hover:scale-105">
+                    Aceptar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Verificar si hay parámetro logout en la URL
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('logout')) {
+            document.getElementById('logoutModal').classList.remove('hidden');
+            // Limpiar la URL sin recargar la página
+            window.history.replaceState({}, document.title, "/login");
+        }
+
+        function closeLogoutModal() {
+            document.getElementById('logoutModal').classList.add('hidden');
+        }
+    </script>
+
+    <style>
+        @keyframes bounce-in {
+            0% {
+                opacity: 0;
+                transform: scale(0.3);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.05);
+            }
+            70% {
+                transform: scale(0.9);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        .animate-bounce-in {
+            animation: bounce-in 0.5s ease-out;
+        }
+    </style>
 </body>
 </html>
