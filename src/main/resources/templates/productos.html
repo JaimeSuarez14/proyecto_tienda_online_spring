@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlazaChina - Productos</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+                background: #f7f8fa;
+        }
+        .header-gradient {
+            background: linear-gradient(to right, #ef4444, #f59e42);
+        }
+        .section-title {
+            font-size: 2.25rem;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            letter-spacing: -1px;
+        }
+        .product-card {
+            border-radius: 1.25rem;
+            box-shadow: 0 4px 16px 0 rgba(31,41,55,0.07), 0 1.5px 4px 0 rgba(245,158,66,0.08);
+            transition: box-shadow 0.3s, transform 0.2s;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .product-card:hover {
+            box-shadow: 0 8px 32px 0 rgba(31,41,55,0.13), 0 3px 8px 0 rgba(245,158,66,0.16);
+            transform: translateY(-4px) scale(1.02);
+        }
+        .btn-main {
+            background: linear-gradient(to right, #f59e42, #ef4444);
+            color: #fff;
+            font-weight: bold;
+            transition: background 0.3s, transform 0.2s;
+        }
+        .btn-main:hover {
+            background: linear-gradient(to right, #f97316, #dc2626);
+            transform: scale(1.05);
+        }
+        .footer-bg {
+            background: #232b34;
+        }
+        .footer-link:hover {
+            color: #f87171;
+        }
+    </style>
+</head>
+<body class="bg-[#f7f8fa] min-h-screen flex flex-col">
+
+    <!-- Notificación personalizada (parte superior) -->
+    <div id="notificacion-carrito" class="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 hidden w-auto max-w-xs">
+        <div class="bg-green-500 text-white px-3 py-2 rounded-lg shadow-lg flex items-center gap-3 animate-fade-in">
+            <i class="bi bi-check-circle-fill text-2xl"></i>
+            <span id="notificacion-mensaje">Producto agregado al carrito</span>
+            <button onclick="ocultarNotificacion()" class="ml-4 text-white hover:text-gray-200 text-xl font-bold">&times;</button>
+        </div>
+    </div>
+
+    <!-- Header degradado -->
+    <header class="header-gradient py-14 text-center mb-8">
+        <h1 class="text-4xl md:text-5xl font-extrabold text-white flex items-center justify-center gap-3 drop-shadow-lg">
+            <i class="bi bi-box-seam"></i> Nuestros Productos
+        </h1>
+        <p class="text-white text-lg mt-3 font-medium drop-shadow">Descubre la variedad que tenemos para ti</p>
+    </header>
+
+    <!-- Barra de navegación -->
+    <nav class="bg-white shadow-md p-4 flex justify-between items-center">
+        <div class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-500 flex items-center gap-2">
+            <i class="bi bi-shop"></i> PlazaChina
+        </div>
+        <div class="flex items-center space-x-4">
+            <a href="/bienvenida" class="text-gray-700 hover:text-orange-600 font-medium"><i class="bi bi-house-door"></i> Inicio</a>
+            <a href="/productos" class="text-orange-600 font-medium border-b-2 border-orange-600"><i class="bi bi-box"></i> Productos</a>
+            <a href="/carrito" class="text-gray-700 hover:text-orange-600 font-medium relative">
+                <i class="bi bi-cart"></i>
+                <span th:if="${carritoCount > 0}" 
+                      class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center"
+                      th:text="${carritoCount}">0</span>
+            </a>
+            <a href="/logout" class="text-red-600 hover:text-red-800 font-medium"><i class="bi bi-box-arrow-right"></i> Cerrar Sesión</a>
+        </div>
+    </nav>
+
+    <!-- Título principal -->
+    <div class="bg-white shadow-sm rounded-2xl px-8 py-8 mb-8 mt-8 flex flex-col items-center">
+        <h2 class="text-3xl md:text-4xl font-extrabold text-gray-800 mb-2 tracking-tight text-center">
+            Explora Nuestros Productos
+        </h2>
+        <p class="text-gray-500 text-lg text-center">Filtra y encuentra lo que buscas fácilmente</p>
+    </div>
+
+    <!-- Filtros y búsqueda tipo tarjeta -->
+    <div class="max-w-7xl mx-auto mb-10">
+        <form action="/productos" method="get" class="bg-white shadow-lg rounded-2xl px-8 py-6 flex flex-wrap gap-6 items-end justify-between">
+            <div class="flex flex-col flex-1 min-w-[180px]">
+                <label for="categoria" class="text-gray-700 font-semibold mb-1">Categoría:</label>
+                <select id="categoria" name="categoria" class="rounded-lg border-gray-300 focus:border-orange-500 focus:ring-orange-500">
+                    <option value="">Todas</option>
+                    <option th:each="cat : ${categorias}"
+                            th:value="${cat.name()}"
+                            th:text="${cat.descripcion}"
+                            th:selected="${cat.name() == selectedCategoria}">
+                    </option>
+                </select>
+            </div>
+            <!-- Puedes agregar más filtros aquí si lo deseas -->
+            <div class="flex flex-col flex-1 min-w-[180px]">
+                <label for="search" class="text-gray-700 font-semibold mb-1">Buscar:</label>
+                <input type="text" id="search" name="search" th:value="${searchTerm}"
+                       class="rounded-lg border-gray-300 focus:border-orange-500 focus:ring-orange-500"
+                       placeholder="Buscar por nombre, descripción o marca">
+            </div>
+            <div class="flex gap-2 mt-4 md:mt-0">
+                <button type="submit" class="bg-black-600 hover:bg-orange-700 border border-black-700 text-black font-bold px-5 py-2 rounded-lg flex items-center gap-2 shadow transition">
+                    <i class="bi bi-funnel"></i > Aplicar Filtros
+                </button>
+                <a href="/productos" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold px-5 py-2 rounded-lg flex items-center gap-2 shadow transition">
+                    <i class="bi bi-x-circle"></i> Limpiar Filtros
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Lista de productos -->
+    <main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <h2 class="section-title mb-8">Todos los Productos</h2>
+        <div th:if="${#lists.isEmpty(productos)}" class="text-center text-gray-600 text-xl py-10">
+            No se encontraron productos con los criterios de búsqueda.
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div th:each="producto : ${productos}" class="bg-white product-card overflow-hidden hover:shadow-xl transition-shadow duration-300 ease-in-out flex flex-col justify-between">
+                <img th:src="${producto.imagenUrl != null and producto.imagenUrl != '' ? producto.imagenUrl : 'https://placehold.co/400x300/E0E0E0/6A11CB?text=Producto'}"
+                     alt="Imagen del producto" class="w-full h-48 object-cover object-center">
+                <div class="p-5 flex flex-col flex-grow">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2" th:text="${producto.nombre}">Nombre del Producto</h3>
+                    <p class="text-gray-600 text-sm mb-1" th:text="${producto.categoria.descripcion}">Categoría</p>
+                    <p class="text-gray-500 text-sm mb-3" th:text="${producto.marca + ' - ' + producto.unidadMedida}">Marca - Unidad</p>
+                    <div class="flex items-baseline mb-3">
+                        <span th:if="${producto.descuento > 0}" class="text-red-500 font-bold text-lg mr-2"
+                              th:text="'S/ ' + ${#numbers.formatDecimal(producto.precio * (1 - producto.descuento/100), 1, 'COMMA', 2, 'POINT')}">S/ XX.XX</span>
+                        <span th:classappend="${producto.descuento > 0 ? 'line-through text-gray-500 text-sm' : 'text-orange-700 font-bold text-xl'}"
+                              th:text="'S/ ' + ${#numbers.formatDecimal(producto.precio, 1, 'COMMA', 2, 'POINT')}">S/ XX.XX</span>
+                        <span th:if="${producto.descuento > 0}" class="ml-2 bg-red-100 text-red-800 text-xs font-semibold px-2.5 py-0.5 rounded-full"
+                              th:text="${#numbers.formatDecimal(producto.descuento, 0, 0) + '% OFF'}">XX% OFF</span>
+                    </div>
+                    <p th:classappend="${producto.stock > 0 ? 'text-green-600' : 'text-red-600'}" class="text-sm font-medium mb-4 flex items-center gap-1">
+                        <i class="bi bi-box"></i> Stock: <span th:text="${producto.stock}"></span>
+                        <span th:if="${producto.stock == 0}" class="ml-1">(Agotado)</span>
+                    </p>
+                    <div class="mt-2">
+                        <button th:if="${producto.stock > 0}" onclick="addToCart(this)"
+                                th:data-producto-id="${producto.id}"
+                                class="btn-main w-full py-2 px-4 rounded-xl flex items-center justify-center gap-2">
+                            <i class="bi bi-cart-plus"></i> Agregar al Carrito
+                        </button>
+                        <button th:if="${producto.stock == 0}"
+                                class="bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded-xl cursor-not-allowed opacity-70 w-full flex items-center justify-center gap-2" disabled>
+                            <i class="bi bi-x-circle"></i> Agotado
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer completo -->
+    <footer class="bg-gray-800 text-white pt-10 pb-6">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <!-- Información de contacto -->
+                <div>
+                    <h3 class="text-xl font-bold mb-4 text-red-400">Plaza China Ica</h3>
+                    <p class="mb-2"><i class="bi bi-geo-alt-fill mr-2"></i> Av. Municipalidad #233, Ica</p>
+                    <p class="mb-2"><i class="bi bi-telephone-fill mr-2"></i> (056) 123456</p>
+                    <p class="mb-2"><i class="bi bi-whatsapp mr-2"></i> +51 987 654 321</p>
+                    <p><i class="bi bi-envelope-fill mr-2"></i> contacto@plazachinaica.com</p>
+                </div>
+                <!-- Horario de atención -->
+                <div>
+                    <h3 class="text-xl font-bold mb-4 text-red-400">Horario</h3>
+                    <p class="mb-2"><strong>Lunes a Viernes:</strong> 9:00 AM - 8:00 PM</p>
+                    <p class="mb-2"><strong>Sábados:</strong> 9:00 AM - 9:00 PM</p>
+                    <p><strong>Domingos:</strong> 9:00 AM - 6:00 PM</p>
+                </div>
+                <!-- Enlaces rápidos -->
+                <div>
+                    <h3 class="text-xl font-bold mb-4 text-red-400">Enlaces</h3>
+                    <ul class="space-y-2">
+                        <li><a href="/nosotros" class="hover:text-red-400 transition"><i class="bi bi-people"></i> Nosotros</a></li>
+                        <li><a href="/productos" class="hover:text-red-400 transition"><i class="bi bi-box"></i> Productos</a></li>
+                        <li><a href="/contacto" class="hover:text-red-400 transition"><i class="bi bi-envelope"></i> Contacto</a></li>
+                        <li><a href="/terminos" class="hover:text-red-400 transition"><i class="bi bi-file-earmark-text"></i> Términos y condiciones</a></li>
+                    </ul>
+                </div>
+                <!-- Redes sociales -->
+                <div>
+                    <h3 class="text-xl font-bold mb-4 text-red-400">Síguenos</h3>
+                    <div class="flex space-x-4">
+                        <a title="." href="#" class="text-2xl hover:text-red-400 transition"><i class="bi bi-facebook"></i></a>
+                        <a title="." href="#" class="text-2xl hover:text-red-400 transition"><i class="bi bi-instagram"></i></a>
+                        <a title="." href="#" class="text-2xl hover:text-red-400 transition"><i class="bi bi-tiktok"></i></a>
+                        <a title="." href="#" class="text-2xl hover:text-red-400 transition"><i class="bi bi-youtube"></i></a>
+                    </div>
+                    <div class="mt-6">
+                        <h4 class="font-semibold mb-2">Métodos de pago</h4>
+                        <div class="flex flex-wrap gap-2">
+                            <i class="bi bi-credit-card text-2xl"></i>
+                            <i class="bi bi-paypal text-2xl"></i>
+                            <i class="bi bi-cash-coin text-2xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-6 text-center text-sm text-gray-400">
+                <p>&copy; 2025 Plaza China Ica. Todos los derechos reservados.</p>
+                <p class="mt-1">Desarrollado con <i class="bi bi-heart-fill text-red-400"></i> para los clientes de Ica</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script th:inline="javascript">
+        function addToCart(button) {
+            const productoId = button.getAttribute('data-producto-id');
+            fetch('/carrito/agregar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    productoId: productoId,
+                    cantidad: 1
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Actualizar el contador del carrito
+                    const carritoCount = document.querySelector('.bi-cart').nextElementSibling;
+                    if (carritoCount) {
+                        carritoCount.textContent = data.carritoCount;
+                    }
+                    mostrarNotificacion('Producto agregado al carrito');
+                } else {
+                    mostrarNotificacion(data.message || 'Error al agregar al carrito', true);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                mostrarNotificacion('Error al agregar al carrito', true);
+            });
+        }
+
+        function mostrarNotificacion(mensaje, esError) {
+            const noti = document.getElementById('notificacion-carrito');
+            const notiMsg = document.getElementById('notificacion-mensaje');
+            notiMsg.textContent = mensaje;
+            noti.classList.remove('hidden');
+            const notiBox = noti.querySelector('div');
+            if (esError) {
+                notiBox.classList.remove('bg-green-500');
+                notiBox.classList.add('bg-red-500');
+                notiBox.querySelector('i').className = 'bi bi-x-circle-fill text-2xl';
+            } else {
+                notiBox.classList.remove('bg-red-500');
+                notiBox.classList.add('bg-green-500');
+                notiBox.querySelector('i').className = 'bi bi-check-circle-fill text-2xl';
+            }
+            setTimeout(() => {
+                noti.classList.add('hidden');
+            }, 2500);
+        }
+
+        function ocultarNotificacion() {
+            document.getElementById('notificacion-carrito').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>

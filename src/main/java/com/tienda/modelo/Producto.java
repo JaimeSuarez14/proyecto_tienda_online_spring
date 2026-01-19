@@ -45,6 +45,15 @@ public class Producto {
     @Column(nullable = false)
     private String unidadMedida; // kg, litros, unidades, etc.
 
+    @Column(nullable = true)
+    private String genero;
+
+    @Column(nullable = true)
+    private String talla;
+
+    @Column(nullable = true)
+    private String tela;
+
     @OneToMany(mappedBy = "producto")
     private List<Carrito> carritos;
 
@@ -82,7 +91,7 @@ public class Producto {
 
     public Producto(String nombre, String descripcion, CategoriaProducto categoria, BigDecimal precio,
             BigDecimal descuento, int stock, boolean disponible, boolean promocion,
-            String imagenUrl, String marca, String unidadMedida) {
+            String imagenUrl, String marca, String unidadMedida, String genero, String talla, String tela) {
         this.nombre = nombre;
         this.descripcion = descripcion;
         this.categoria = categoria;
@@ -94,6 +103,9 @@ public class Producto {
         this.imagenUrl = imagenUrl;
         this.marca = marca;
         this.unidadMedida = unidadMedida;
+        this.genero = genero;
+        this.talla = talla;
+        this.tela = tela;
     }
 
     // Getters y setters
@@ -193,6 +205,30 @@ public class Producto {
         this.unidadMedida = unidadMedida;
     }
 
+    public String getGenero() {
+        return genero;
+    }
+
+    public void setGenero(String genero) {
+        this.genero = genero;
+    }
+
+    public String getTalla() {
+        return talla;
+    }
+
+    public void setTalla(String talla) {
+        this.talla = talla;
+    }
+
+    public String getTela() {
+        return tela;
+    }
+
+    public void setTela(String tela) {
+        this.tela = tela;
+    }
+
     public List<Carrito> getCarritos() {
         return carritos;
     }
@@ -224,6 +260,9 @@ public class Producto {
                 ", imagenUrl='" + imagenUrl + '\'' +
                 ", marca='" + marca + '\'' +
                 ", unidadMedida='" + unidadMedida + '\'' +
+                ", genero='" + genero + '\'' +
+                ", talla='" + talla + '\'' +
+                ", tela='" + tela + '\'' +
                 '}';
     }
 }
