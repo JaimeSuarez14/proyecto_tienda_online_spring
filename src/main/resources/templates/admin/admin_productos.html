@@ -85,6 +85,22 @@
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${#numbers.formatDecimal(producto.descuento, 0, 0) + '%'}"></td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm" th:classappend="${producto.stock > 0 ? 'text-green-600' : 'text-red-600'}" th:text="${producto.stock}"></td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <button onclick="editProduct(this)"
+                                    th:data-id="${producto.id}"
+                                    th:data-nombre="${producto.nombre}"
+                                    th:data-descripcion="${producto.descripcion}"
+                                    th:data-categoria="${producto.categoria}"
+                                    th:data-marca="${producto.marca}"
+                                    th:data-unidadmedida="${producto.unidadMedida}"
+                                    th:data-precio="${producto.precio}"
+                                    th:data-descuento="${producto.descuento}"
+                                    th:data-stock="${producto.stock}"
+                                    th:data-imagenurl="${producto.imagenUrl}"
+                                    th:data-disponible="${producto.disponible}"
+                                    th:data-promocion="${producto.promocion}"
+                                    class="text-indigo-600 hover:text-indigo-900 mr-4">
+                                <i class="fas fa-edit"></i> Editar
+                            </button>
                         </td>
                     </tr>
                 </tbody>
