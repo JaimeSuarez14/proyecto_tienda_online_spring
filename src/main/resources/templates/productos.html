@@ -137,7 +137,17 @@
             No se encontraron productos con los criterios de búsqueda.
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            <div th:each="producto : ${productos}" class="bg-white product-card overflow-hidden hover:shadow-xl transition-shadow duration-300 ease-in-out flex flex-col justify-between">
+            <div th:each="producto : ${productos}" class="bg-white product-card overflow-hidden hover:shadow-xl transition-shadow duration-300 ease-in-out flex flex-col justify-between"
+                 th:data-id="${producto.id}"
+                 th:data-nombre="${producto.nombre}"
+                 th:data-descripcion="${producto.descripcion}"
+                 th:data-categoria="${producto.categoria.descripcion}"
+                 th:data-marca="${producto.marca}"
+                 th:data-unidadmedida="${producto.unidadMedida}"
+                 th:data-precio="${producto.precio}"
+                 th:data-descuento="${producto.descuento}"
+                 th:data-stock="${producto.stock}"
+                 th:data-imagenurl="${producto.imagenUrl}">
                 <img th:src="${producto.imagenUrl != null and producto.imagenUrl != '' ? producto.imagenUrl : 'https://placehold.co/400x300/E0E0E0/6A11CB?text=Producto'}"
                      alt="Imagen del producto" class="w-full h-48 object-cover object-center">
                 <div class="p-5 flex flex-col flex-grow">
@@ -156,7 +166,7 @@
                         <i class="bi bi-box"></i> Stock: <span th:text="${producto.stock}"></span>
                         <span th:if="${producto.stock == 0}" class="ml-1">(Agotado)</span>
                     </p>
-                    <div class="mt-2">
+                    <div class="mt-2 flex flex-col gap-2">
                         <button th:if="${producto.stock > 0}" onclick="addToCart(this)"
                                 th:data-producto-id="${producto.id}"
                                 class="btn-main w-full py-2 px-4 rounded-xl flex items-center justify-center gap-2">
@@ -166,11 +176,92 @@
                                 class="bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded-xl cursor-not-allowed opacity-70 w-full flex items-center justify-center gap-2" disabled>
                             <i class="bi bi-x-circle"></i> Agotado
                         </button>
+                        <button onclick="showProductDetailsModal(this)"
+                                class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-xl transition duration-300 ease-in-out transform hover:scale-105 flex items-center justify-center gap-2 w-full">
+                            <i class="bi bi-eye"></i> Ver Detalles
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
     </main>
+
+    <!-- Modal de Detalles del Producto -->
+    <div id="productDetailsModal"
+        class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+        <div class="relative w-full max-w-4xl mx-4 rounded-3xl shadow-2xl overflow-hidden
+           bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+            <!-- Botón cerrar -->
+            <button onclick="hideProductDetailsModal()" class="absolute top-5 right-5 text-gray-500 hover:text-gray-800
+             text-3xl font-bold transition">
+                &times;
+            </button>
+
+            <div class="p-10">
+                <div class="flex flex-col md:flex-row gap-10">
+                    <!-- Imagen -->
+                    <div class="md:w-1/2">
+                        <img id="modal-imagen" src="https://placehold.co/500x400/E0E0E0/6A11CB?text=Producto"
+                            alt="Imagen del producto" class="w-full h-full object-cover rounded-2xl shadow-lg" />
+                    </div>
+
+                    <!-- Información -->
+                    <div class="md:w-1/2 flex flex-col justify-between">
+                        <div>
+                            <!-- Título -->
+                            <h3 id="modal-nombre" class="text-4xl font-extrabold mb-6
+                     bg-gradient-to-r from-indigo-600 to-purple-600
+                     bg-clip-text text-transparent">
+                                Nombre del Producto
+                            </h3>
+
+                            <!-- Detalles -->
+                            <div class="space-y-3 text-lg text-gray-700">
+                                <p><span class="font-semibold text-gray-900">Categoría:</span> <span
+                                        id="modal-categoria"></span></p>
+                                <p><span class="font-semibold text-gray-900">Marca:</span> <span
+                                        id="modal-marca"></span></p>
+                                <p><span class="font-semibold text-gray-900">Unidad de Medida:</span> <span
+                                        id="modal-unidadmedida"></span></p>
+                            </div>
+
+                            <!-- Descripción -->
+                            <p id="modal-descripcion" class="mt-6 text-gray-600 text-lg leading-relaxed">
+                                Descripción detallada del producto.
+                            </p>
+                        </div>
+
+                        <!-- Precio y stock -->
+                        <div class="mt-8">
+                            <div class="flex items-center flex-wrap gap-3 mb-4">
+                                <span id="modal-precio-descuento"
+                                    class="text-red-600 font-extrabold text-3xl hidden"></span>
+
+                                <span id="modal-precio-original" class="text-indigo-700 font-extrabold text-3xl"></span>
+
+                                <span id="modal-descuento-badge"
+                                    class="bg-red-500 text-white text-sm font-bold px-3 py-1 rounded-full hidden"></span>
+                            </div>
+                            <div class="flex justify-between align-center">
+                                <p id="modal-stock" class="text-base font-semibold text-gray-700"></p>
+                                <button th:if="${producto.stock > 0}"
+                                    onclick="addToCart(this)"
+                                    class="bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded-xl transition duration-300 ease-in-out transform hover:scale-105">
+                                    Agregar al Carrito
+                                </button>
+                                <button th:if="${producto.stock == 0}"
+                                    class="bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded-xl cursor-not-allowed opacity-70"
+                                    disabled>
+                                    Agotado
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Footer completo -->
     <footer class="bg-gray-800 text-white pt-10 pb-6">
@@ -229,6 +320,66 @@
 
     <!-- Scripts -->
     <script th:inline="javascript">
+        // Función para mostrar el modal de detalles del producto
+        function showProductDetailsModal(button) {
+            const modal = document.getElementById('productDetailsModal');
+            document.getElementById('modal-nombre').innerText = button.dataset.nombre;
+            document.getElementById('modal-descripcion').innerText = button.dataset.descripcion;
+            document.getElementById('modal-categoria').innerText = button.dataset.categoria;
+            document.getElementById('modal-marca').innerText = button.dataset.marca;
+            document.getElementById('modal-unidadmedida').innerText = button.dataset.unidadmedida;
+
+            const precio = parseFloat(button.dataset.precio);
+            const descuento = parseFloat(button.dataset.descuento);
+            const precioOriginalSpan = document.getElementById('modal-precio-original');
+            const precioDescuentoSpan = document.getElementById('modal-precio-descuento');
+            const descuentoBadge = document.getElementById('modal-descuento-badge');
+
+            if (descuento > 0) {
+                const precioConDescuento = precio * (1 - descuento / 100);
+                precioDescuentoSpan.innerText = `S/ ${precioConDescuento.toFixed(2)}`;
+                precioDescuentoSpan.classList.remove('hidden');
+                precioOriginalSpan.classList.add('line-through', 'text-gray-500', 'text-lg');
+                precioOriginalSpan.classList.remove('text-indigo-700', 'text-3xl');
+                precioOriginalSpan.innerText = `S/ ${precio.toFixed(2)}`;
+                descuentoBadge.innerText = `${descuento.toFixed(0)}% OFF`;
+                descuentoBadge.classList.remove('hidden');
+            } else {
+                precioDescuentoSpan.classList.add('hidden');
+                precioOriginalSpan.classList.remove('line-through', 'text-gray-500', 'text-lg');
+                precioOriginalSpan.classList.add('text-indigo-700', 'text-3xl');
+                precioOriginalSpan.innerText = `S/ ${precio.toFixed(2)}`;
+                descuentoBadge.classList.add('hidden');
+            }
+
+            const stock = parseInt(button.dataset.stock);
+            const stockElement = document.getElementById('modal-stock');
+            stockElement.innerText = `Stock: ${stock}`;
+            stockElement.classList.remove('text-green-600', 'text-red-600');
+            stockElement.classList.add(stock > 0 ? 'text-green-600' : 'text-red-600');
+            if (stock === 0) {
+                stockElement.innerText += ' (Agotado)';
+            }
+
+            const imagenUrl = button.dataset.imagenurl;
+            document.getElementById('modal-imagen').src = imagenUrl && imagenUrl !== 'null' ? imagenUrl : 'https://placehold.co/400x300/E0E0E0/6A11CB?text=Producto';
+
+            modal.classList.remove('hidden');
+        }
+
+        // Función para ocultar el modal
+        function hideProductDetailsModal() {
+            document.getElementById('productDetailsModal').classList.add('hidden');
+        }
+
+        // Cierra el modal si se hace clic fuera de él
+        window.onclick = function (event) {
+            const modal = document.getElementById('productDetailsModal');
+            if (event.target == modal) {
+                modal.classList.add('hidden');
+            }
+        }
+
         function addToCart(button) {
             const productoId = button.getAttribute('data-producto-id');
             fetch('/carrito/agregar', {
@@ -250,6 +401,8 @@
                         carritoCount.textContent = data.carritoCount;
                     }
                     mostrarNotificacion('Producto agregado al carrito');
+                    // Cerrar modal si está abierto
+                    hideProductDetailsModal();
                 } else {
                     mostrarNotificacion(data.message || 'Error al agregar al carrito', true);
                 }

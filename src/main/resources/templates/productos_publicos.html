@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,21 +14,26 @@
         body {
             font-family: 'Inter', sans-serif;
         }
+
         .gradient-bg {
             background: linear-gradient(to right, #6a11cb 0%, #2575fc 100%);
         }
+
         .card-shadow {
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
+
         .rotate-180 {
             transform: rotate(180deg);
         }
     </style>
 </head>
+
 <body class="bg-gray-100 flex flex-col min-h-screen">
 
     <nav class="bg-white shadow-md p-4 flex justify-between items-center">
-        <div class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-500 flex items-center gap-2">
+        <div
+            class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-500 flex items-center gap-2">
             <i class="bi bi-shop"></i>
             <a href="/" class="text-inherit">PlazaChina</a>
         </div>
@@ -52,41 +58,53 @@
 
         <div class="bg-white p-6 rounded-2xl shadow-lg mb-8">
             <h3 class="text-2xl font-semibold text-gray-700 mb-4">Filtros y Búsqueda</h3>
-            <form th:action="@{/productos-publicos}" method="get" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+            <form th:action="@{/productos-publicos}" method="get"
+                class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                 <div>
                     <label for="categoria" class="block text-sm font-medium text-gray-700 mb-1">Categoría:</label>
-                    <select id="categoria" name="categoria" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+                    <select id="categoria" name="categoria"
+                        class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
                         <option value="">Todas</option>
-                        <option th:each="cat : ${categorias}" th:value="${cat}" th:text="${cat}" th:selected="${cat == selectedCategoria}"></option>
+                        <option th:each="cat : ${categorias}" th:value="${cat}" th:text="${cat}"
+                            th:selected="${cat == selectedCategoria}"></option>
                     </select>
                 </div>
                 <div>
                     <label for="genero" class="block text-sm font-medium text-gray-700 mb-1">Género:</label>
-                    <select id="genero" name="genero" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+                    <select id="genero" name="genero"
+                        class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
                         <option value="">Todos</option>
-                        <option th:each="gen : ${generos}" th:value="${gen}" th:text="${gen}" th:selected="${gen == selectedGenero}"></option>
+                        <option th:each="gen : ${generos}" th:value="${gen}" th:text="${gen}"
+                            th:selected="${gen == selectedGenero}"></option>
                     </select>
                 </div>
                 <div>
                     <label for="talla" class="block text-sm font-medium text-gray-700 mb-1">Talla:</label>
-                    <select id="talla" name="talla" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
+                    <select id="talla" name="talla"
+                        class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md">
                         <option value="">Todas</option>
-                        <option th:each="tal : ${tallas}" th:value="${tal}" th:text="${tal}" th:selected="${tal == selectedTalla}"></option>
+                        <option th:each="tal : ${tallas}" th:value="${tal}" th:text="${tal}"
+                            th:selected="${tal == selectedTalla}"></option>
                     </select>
                 </div>
                 <div class="md:col-span-1 relative">
                     <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Buscar:</label>
-                    <input type="text" id="search" name="search" th:value="${searchTerm}" placeholder="Buscar por nombre o descripción..." autocomplete="off" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2">
+                    <input type="text" id="search" name="search" th:value="${searchTerm}"
+                        placeholder="Buscar por nombre o descripción..." autocomplete="off"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2">
                     <!-- Contenedor de sugerencias (se llenará desde JS) -->
-                    <div id="suggestions" class="absolute left-0 right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-50 hidden max-h-60 overflow-auto">
+                    <div id="suggestions"
+                        class="absolute left-0 right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-50 hidden max-h-60 overflow-auto">
                         <ul id="suggestions-list" class="divide-y divide-gray-100"></ul>
                     </div>
                 </div>
                 <div class="md:col-span-4 flex justify-end">
-                    <button type="submit" class="bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-6 rounded-xl transition duration-300 ease-in-out transform hover:scale-105 flex items-center gap-2">
+                    <button type="submit"
+                        class="bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-6 rounded-xl transition duration-300 ease-in-out transform hover:scale-105 flex items-center gap-2">
                         <i class="bi bi-funnel"></i> Aplicar Filtros
                     </button>
-                    <a th:href="@{/productos-publicos}" class="ml-4 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-xl transition duration-300 ease-in-out transform hover:scale-105 flex items-center gap-2">
+                    <a th:href="@{/productos-publicos}"
+                        class="ml-4 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-xl transition duration-300 ease-in-out transform hover:scale-105 flex items-center gap-2">
                         <i class="bi bi-x-circle"></i> Limpiar Filtros
                     </a>
                 </div>
@@ -97,55 +115,61 @@
             No se encontraron productos con los criterios de búsqueda.
         </div>
         <div th:each="entry : ${productosAgrupados}" class="mb-8">
-            <div class="categoria-header bg-gradient-to-r from-orange-500 to-red-500 text-white p-4 rounded-t-lg cursor-pointer flex items-center gap-3" th:data-categoria="${entry.key}">
+            <div class="categoria-header bg-gradient-to-r from-orange-500 to-red-500 text-white p-4 rounded-t-lg cursor-pointer flex items-center gap-3"
+                th:data-categoria="${entry.key}">
                 <i th:class="'fas ' + ${iconos[entry.key]}" class="text-2xl"></i>
                 <h3 class="text-xl font-bold" th:text="${entry.key}"></h3>
                 <i class="fas fa-chevron-down ml-auto transition-transform chevron-icon"></i>
             </div>
-            <div class="categoria-content grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-4 bg-gray-50 rounded-b-lg">
-                <div th:each="producto : ${entry.value}" class="bg-white rounded-2xl overflow-hidden card-shadow hover:shadow-xl transition-shadow duration-300 ease-in-out product-item"
-                     th:data-nombre="${producto.nombre}"
-                     th:data-descripcion="${producto.descripcion}"
-                     th:data-categoria="${producto.categoria.descripcion}"
-                     th:data-genero="${producto.genero}"
-                     th:data-talla="${producto.talla}">
+            <div
+                class="categoria-content grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-4 bg-gray-50 rounded-b-lg">
+                <div th:each="producto : ${entry.value}"
+                    class="bg-white rounded-2xl overflow-hidden card-shadow hover:shadow-xl transition-shadow duration-300 ease-in-out product-item"
+                    th:data-nombre="${producto.nombre}" th:data-descripcion="${producto.descripcion}"
+                    th:data-categoria="${producto.categoria.descripcion}" th:data-genero="${producto.genero}"
+                    th:data-talla="${producto.talla}">
                     <img th:src="${producto.imagenUrl != null and producto.imagenUrl != '' ? producto.imagenUrl : 'https://placehold.co/400x300/E0E0E0/6A11CB?text=Producto'}"
-                         alt="Imagen del producto" class="w-full h-48 object-cover object-center">
+                        alt="Imagen del producto" class="w-full h-48 object-cover object-center">
                     <div class="p-5">
-                        <h3 class="text-xl font-semibold text-gray-800 mb-2" th:text="${producto.nombre}">Nombre del Producto</h3>
-                        <p class="text-gray-600 text-sm mb-3" th:text="${producto.categoria.descripcion} + ' - ' + ${producto.genero} + ' - Talla: ' + ${producto.talla}">Categoría - Género - Talla</p>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2" th:text="${producto.nombre}">Nombre del
+                            Producto</h3>
+                        <p class="text-gray-600 text-sm mb-3"
+                            th:text="${producto.categoria.descripcion} + ' - ' + ${producto.genero} + ' - Talla: ' + ${producto.talla}">
+                            Categoría - Género - Talla</p>
 
                         <div class="flex items-baseline mb-3">
                             <span th:if="${producto.descuento > 0}" class="text-red-500 font-bold text-lg mr-2"
-                                  th:text="'S/ ' + ${#numbers.formatDecimal(producto.precio * (1 - producto.descuento/100), 1, 'COMMA', 2, 'POINT')}">S/ XX.XX</span>
-                            <span th:classappend="${producto.descuento > 0 ? 'line-through text-gray-500 text-sm' : 'text-blue-700 font-bold text-xl'}"
-                                  th:text="'S/ ' + ${#numbers.formatDecimal(producto.precio, 1, 'COMMA', 2, 'POINT')}">S/ XX.XX</span>
-                            <span th:if="${producto.descuento > 0}" class="ml-2 bg-red-100 text-red-800 text-xs font-semibold px-2.5 py-0.5 rounded-full"
-                                  th:text="${#numbers.formatDecimal(producto.descuento, 0, 0) + '% OFF'}">XX% OFF</span>
+                                th:text="'S/ ' + ${#numbers.formatDecimal(producto.precio * (1 - producto.descuento/100), 1, 'COMMA', 2, 'POINT')}">S/
+                                XX.XX</span>
+                            <span
+                                th:classappend="${producto.descuento > 0 ? 'line-through text-gray-500 text-sm' : 'text-blue-700 font-bold text-xl'}"
+                                th:text="'S/ ' + ${#numbers.formatDecimal(producto.precio, 1, 'COMMA', 2, 'POINT')}">S/
+                                XX.XX</span>
+                            <span th:if="${producto.descuento > 0}"
+                                class="ml-2 bg-red-100 text-red-800 text-xs font-semibold px-2.5 py-0.5 rounded-full"
+                                th:text="${#numbers.formatDecimal(producto.descuento, 0, 0) + '% OFF'}">XX% OFF</span>
                         </div>
 
-                        <p th:classappend="${producto.stock > 0 ? 'text-green-600' : 'text-red-600'}" class="text-sm font-medium mb-4">
+                        <p th:classappend="${producto.stock > 0 ? 'text-green-600' : 'text-red-600'}"
+                            class="text-sm font-medium mb-4">
                             Stock: <span th:text="${producto.stock}"></span>
                             <span th:if="${producto.stock == 0}" class="ml-1">(Agotado)</span>
                         </p>
 
                         <div class="flex flex-col space-y-3">
-                            <button class="bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded-xl cursor-not-allowed opacity-70" disabled>
+                            <button
+                                class="bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded-xl cursor-not-allowed opacity-70"
+                                disabled>
                                 Agregar al Carrito
                             </button>
-                            <button onclick="showProductDetailsModal(this)"
-                                    th:data-id="${producto.id}"
-                                    th:data-nombre="${producto.nombre}"
-                                    th:data-descripcion="${producto.descripcion}"
-                                    th:data-categoria="${producto.categoria.descripcion}"
-                                    th:data-genero="${producto.genero}"
-                                    th:data-talla="${producto.talla}"
-                                    th:data-precio="${producto.precio}"
-                                    th:data-descuento="${producto.descuento}"
-                                    th:data-stock="${producto.stock}"
-                                    th:data-imagenurl="${producto.imagenUrl}"
-                                    th:data-tela="${producto.tela}"
-                                    class="bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded-xl transition duration-300 ease-in-out transform hover:scale-105">
+                            <button onclick="showProductDetailsModal(this)" th:data-id="${producto.id}"
+                                th:data-nombre="${producto.nombre}" th:data-descripcion="${producto.descripcion}"
+                                th:data-categoria="${producto.categoria.descripcion}"
+                                th:data-genero="${producto.genero}" th:data-talla="${producto.talla}"
+                                th:data-precio="${producto.precio}" th:data-descuento="${producto.descuento}"
+                                th:data-stock="${producto.stock}" th:data-imagenurl="${producto.imagenUrl}"
+                                th:data-tela="${producto.tela}"
+                                class="bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded-xl transition duration-300 ease-in-out transform hover:scale-105">
                                 Ver más detalles
                             </button>
                         </div>
@@ -155,34 +179,81 @@
         </div>
     </main>
 
-    <div id="productDetailsModal" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 hidden">
-        <div class="bg-white p-8 rounded-2xl shadow-xl max-w-2xl w-full mx-4 relative">
-            <button onclick="hideProductDetailsModal()" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl font-bold">&times;</button>
-            <div class="flex flex-col md:flex-row gap-6">
-                <div class="md:w-1/2">
-                    <img id="modal-imagen" src="https://placehold.co/400x300/E0E0E0/6A11CB?text=Producto" alt="Imagen del producto" class="w-full h-auto rounded-lg object-cover">
-                </div>
-                <div class="md:w-1/2">
-                    <h3 id="modal-nombre" class="text-3xl font-bold text-gray-800 mb-3">Nombre del Producto</h3>
-                    <p class="text-gray-600 mb-2"><strong>Categoría:</strong> <span id="modal-categoria"></span></p>
-                    <p class="text-gray-600 mb-2"><strong>Género:</strong> <span id="modal-genero"></span></p>
-                    <p class="text-gray-600 mb-2"><strong>Talla:</strong> <span id="modal-talla"></span></p>
-                    <p class="text-gray-600 mb-2"><strong>Tela:</strong> <span id="modal-tela"></span></p>
-                    <p id="modal-descripcion" class="text-gray-700 text-base mb-4">Descripción detallada del producto.</p>
+    <div id="productDetailsModal"
+        class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+        <div class="relative w-full max-w-4xl mx-4 rounded-3xl shadow-2xl overflow-hidden
+           bg-gradient-to-br from-indigo-50 via-white to-purple-50">
+            <!-- Botón cerrar -->
+            <button onclick="hideProductDetailsModal()" class="absolute top-5 right-5 text-gray-500 hover:text-gray-800
+             text-3xl font-bold transition">
+                &times;
+            </button>
 
-                    <div class="flex items-baseline mb-4">
-                        <span id="modal-precio-descuento" class="text-red-500 font-bold text-2xl mr-2 hidden"></span>
-                        <span id="modal-precio-original" class="text-blue-700 font-bold text-2xl"></span>
-                        <span id="modal-descuento-badge" class="ml-2 bg-red-100 text-red-800 text-sm font-semibold px-2.5 py-0.5 rounded-full hidden"></span>
+            <div class="p-10">
+                <div class="flex flex-col md:flex-row gap-10">
+                    <!-- Imagen -->
+                    <div class="md:w-1/2">
+                        <img id="modal-imagen" src="https://placehold.co/500x400/E0E0E0/6A11CB?text=Producto"
+                            alt="Imagen del producto" class="w-full h-full object-cover rounded-2xl shadow-lg" />
                     </div>
 
-                    <p id="modal-stock" class="text-sm font-medium"></p>
+                    <!-- Información -->
+                    <div class="md:w-1/2 flex flex-col justify-between">
+                        <div>
+                            <!-- Título -->
+                            <h3 id="modal-nombre" class="text-4xl font-extrabold mb-6
+                     bg-gradient-to-r from-indigo-600 to-purple-600
+                     bg-clip-text text-transparent">
+                                Nombre del Producto
+                            </h3>
+
+                            <!-- Detalles -->
+                            <div class="space-y-3 text-lg text-gray-700">
+                                <p><span class="font-semibold text-gray-900">Categoría:</span> <span
+                                        id="modal-categoria"></span></p>
+                                <p><span class="font-semibold text-gray-900">Género:</span> <span
+                                        id="modal-genero"></span></p>
+                                <p><span class="font-semibold text-gray-900">Talla:</span> <span
+                                        id="modal-talla"></span></p>
+                                <p><span class="font-semibold text-gray-900">Tela:</span> <span id="modal-tela"></span>
+                                </p>
+                            </div>
+
+                            <!-- Descripción -->
+                            <p id="modal-descripcion" class="mt-6 text-gray-600 text-lg leading-relaxed">
+                                Descripción detallada del producto.
+                            </p>
+                        </div>
+
+                        <!-- Precio y stock -->
+                        <div class="mt-8">
+                            <div class="flex items-center flex-wrap gap-3 mb-4">
+                                <span id="modal-precio-descuento"
+                                    class="text-red-600 font-extrabold text-3xl hidden"></span>
+
+                                <span id="modal-precio-original" class="text-indigo-700 font-extrabold text-3xl"></span>
+
+                                <span id="modal-descuento-badge"
+                                    class="bg-red-500 text-white text-sm font-bold px-3 py-1 rounded-full hidden"></span>
+                            </div>
+                            <div class="flex justify-between align-center">
+                                <p id="modal-stock" class="text-base font-semibold text-gray-700"></p>
+                                <button
+                                    class="bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded-xl cursor-not-allowed opacity-70"
+                                    disabled>
+                                    Agregar al Carrito
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-   <!-- Footer completo -->
+
+    <!-- Footer completo -->
     <footer class="bg-gray-800 text-white pt-10 pb-6">
         <div class="container mx-auto px-4">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -205,20 +276,28 @@
                 <div>
                     <h3 class="text-xl font-bold mb-4 text-red-400">Enlaces</h3>
                     <ul class="space-y-2">
-                        <li><a href="/nosotros" class="hover:text-red-400 transition"><i class="bi bi-people"></i> Nosotros</a></li>
-                        <li><a href="/productos" class="hover:text-red-400 transition"><i class="bi bi-box"></i> Productos</a></li>
-                        <li><a href="/contacto" class="hover:text-red-400 transition"><i class="bi bi-envelope"></i> Contacto</a></li>
-                        <li><a href="/terminos" class="hover:text-red-400 transition"><i class="bi bi-file-earmark-text"></i> Términos y condiciones</a></li>
+                        <li><a href="/nosotros" class="hover:text-red-400 transition"><i class="bi bi-people"></i>
+                                Nosotros</a></li>
+                        <li><a href="/productos" class="hover:text-red-400 transition"><i class="bi bi-box"></i>
+                                Productos</a></li>
+                        <li><a href="/contacto" class="hover:text-red-400 transition"><i class="bi bi-envelope"></i>
+                                Contacto</a></li>
+                        <li><a href="/terminos" class="hover:text-red-400 transition"><i
+                                    class="bi bi-file-earmark-text"></i> Términos y condiciones</a></li>
                     </ul>
                 </div>
                 <!-- Redes sociales -->
                 <div>
                     <h3 class="text-xl font-bold mb-4 text-red-400">Síguenos</h3>
                     <div class="flex space-x-4">
-                        <a title="." href="#" class="text-2xl hover:text-red-400 transition"><i class="bi bi-facebook"></i></a>
-                        <a title="." href="#" class="text-2xl hover:text-red-400 transition"><i class="bi bi-instagram"></i></a>
-                        <a title="." href="#" class="text-2xl hover:text-red-400 transition"><i class="bi bi-tiktok"></i></a>
-                        <a title="." href="#" class="text-2xl hover:text-red-400 transition"><i class="bi bi-youtube"></i></a>
+                        <a title="." href="#" class="text-2xl hover:text-red-400 transition"><i
+                                class="bi bi-facebook"></i></a>
+                        <a title="." href="#" class="text-2xl hover:text-red-400 transition"><i
+                                class="bi bi-instagram"></i></a>
+                        <a title="." href="#" class="text-2xl hover:text-red-400 transition"><i
+                                class="bi bi-tiktok"></i></a>
+                        <a title="." href="#" class="text-2xl hover:text-red-400 transition"><i
+                                class="bi bi-youtube"></i></a>
                     </div>
                     <div class="mt-6">
                         <h4 class="font-semibold mb-2">Métodos de pago</h4>
@@ -232,7 +311,8 @@
             </div>
             <div class="border-t border-gray-700 mt-8 pt-6 text-center text-sm text-gray-400">
                 <p>&copy; 2025 Plaza China Ica. Todos los derechos reservados.</p>
-                <p class="mt-1">Desarrollado con <i class="bi bi-heart-fill text-red-400"></i> para los clientes de Ica</p>
+                <p class="mt-1">Desarrollado con <i class="bi bi-heart-fill text-red-400"></i> para los clientes de Ica
+                </p>
             </div>
         </div>
     </footer>
@@ -292,7 +372,7 @@
         }
 
         // Cierra el modal si se hace clic fuera de él
-        window.onclick = function(event) {
+        window.onclick = function (event) {
             const modal = document.getElementById('productDetailsModal');
             if (event.target == modal) {
                 modal.classList.add('hidden');
@@ -308,7 +388,7 @@
 
         function debounce(fn, delay) {
             let timer = null;
-            return function(...args) {
+            return function (...args) {
                 clearTimeout(timer);
                 timer = setTimeout(() => fn.apply(this, args), delay);
             };
@@ -341,7 +421,7 @@
                 if (hayCoincidencia && q !== '') {
                     // Preferir nombres que contienen el query para sugerencias
                     if (nombre.includes(q)) {
-                        matchesForSuggestions.push({name: item.dataset.nombre, element: item});
+                        matchesForSuggestions.push({ name: item.dataset.nombre, element: item });
                     }
                 }
             });
@@ -377,7 +457,7 @@
                 li.addEventListener('click', () => {
                     // Mostrar solo el producto seleccionado y hacer scroll hacia él
                     m.element.style.display = '';
-                    m.element.scrollIntoView({behavior: 'smooth', block: 'center'});
+                    m.element.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     flashHighlight(m.element);
                     suggestionsBox.classList.add('hidden');
                     searchInput.value = m.name;
@@ -393,10 +473,10 @@
             setTimeout(() => el.classList.remove('ring-4', 'ring-orange-300'), 1600);
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const headers = document.querySelectorAll('.categoria-header');
             headers.forEach(header => {
-                header.addEventListener('click', function() {
+                header.addEventListener('click', function () {
                     const content = this.nextElementSibling;
                     const chevron = this.querySelector('.chevron-icon');
                     content.classList.toggle('hidden');
@@ -405,23 +485,23 @@
             });
         });
 
-        const debouncedFilter = debounce(function() {
+        const debouncedFilter = debounce(function () {
             const val = searchInput.value || '';
             filterProducts(val);
         }, 250);
 
         // Eventos
         if (searchInput) {
-            searchInput.addEventListener('input', function(e) {
+            searchInput.addEventListener('input', function (e) {
                 debouncedFilter();
             });
 
             // ocultar sugerencias al perder foco (dar una pequeña ventana para clicks)
-            searchInput.addEventListener('blur', function() {
+            searchInput.addEventListener('blur', function () {
                 setTimeout(() => suggestionsBox.classList.add('hidden'), 150);
             });
 
-            searchInput.addEventListener('focus', function() {
+            searchInput.addEventListener('focus', function () {
                 const q = searchInput.value || '';
                 if (q.trim() !== '') {
                     filterProducts(q);
@@ -430,4 +510,5 @@
         }
     </script>
 </body>
+
 </html>
