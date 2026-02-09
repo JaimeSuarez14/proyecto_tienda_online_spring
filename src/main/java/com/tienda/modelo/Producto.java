@@ -45,14 +45,14 @@ public class Producto {
     @Column(nullable = false)
     private String unidadMedida; // kg, litros, unidades, etc.
 
-    @Column(nullable = true)
-    private String genero;
+    @Column(nullable = false)
+    private String genero = "";
 
-    @Column(nullable = true)
-    private String talla;
+    @Column(nullable = false)
+    private String talla = "";
 
-    @Column(nullable = true)
-    private String tela;
+    @Column(nullable = false)
+    private String tela = "";
 
     @OneToMany(mappedBy = "producto")
     private List<Carrito> carritos;
@@ -210,7 +210,7 @@ public class Producto {
     }
 
     public void setGenero(String genero) {
-        this.genero = genero;
+        this.genero = genero == null ? "" : genero;
     }
 
     public String getTalla() {
@@ -218,7 +218,7 @@ public class Producto {
     }
 
     public void setTalla(String talla) {
-        this.talla = talla;
+        this.talla = talla == null ? "" : talla;
     }
 
     public String getTela() {
@@ -226,7 +226,7 @@ public class Producto {
     }
 
     public void setTela(String tela) {
-        this.tela = tela;
+        this.tela = tela == null ? "" : tela;
     }
 
     public List<Carrito> getCarritos() {
