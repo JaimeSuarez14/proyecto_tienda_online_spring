@@ -1,5 +1,3 @@
-// Crear el archivo Jenkinsfile
-cat > Jenkinsfile << 'EOF'
 pipeline {
     agent any
     
@@ -10,21 +8,18 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                echo 'Obteniendo código desde GitHub...'
                 checkout scm
             }
         }
         
         stage('Compile') {
             steps {
-                echo 'Compilando el proyecto...'
                 sh 'mvn clean compile -B -ntp'
             }
         }
         
         stage('Test') {
             steps {
-                echo 'Ejecutando pruebas...'
                 sh 'mvn test -B -ntp'
             }
             post {
@@ -36,7 +31,6 @@ pipeline {
         
         stage('Package') {
             steps {
-                echo 'Empaquetando aplicación...'
                 sh 'mvn package -DskipTests -B -ntp'
             }
         }
@@ -44,15 +38,7 @@ pipeline {
     
     post {
         always {
-            echo 'Pipeline finalizado'
             cleanWs()
-        }
-        success {
-            echo 'Pipeline completado con éxito'
-        }
-        failure {
-            echo 'Pipeline falló'
         }
     }
 }
-EOF
