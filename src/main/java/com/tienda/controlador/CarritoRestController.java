@@ -254,4 +254,43 @@ public class CarritoRestController {
         }
     }
 
+    /**
+     * Endpoint para vaciar completamente el carrito del usuario autenticado.
+     * @param session La sesión HTTP para obtener el usuario autenticado.
+     * @return Una respuesta JSON con confirmación de limpieza.
+     */
+    @PostMapping("/vaciar")
+    public ResponseEntity<Map<String, Object>> vaciarCarritoCompleto(HttpSession session) {
+        Map<String, Object> response = new HashMap<>();
+        Usuario usuarioAutenticado = (Usuario) session.getAttribute("usuarioAutenticado");
+        
+        // Si no encuentra con ese nombre, intenta con el otro
+        if (usuarioAutenticado == null) {
+            usuarioAutenticado = (Usuario) session.getAttribute("usuarioLogueado");
+        }
+
+        if (usuarioAutenticado == null) {
+            response.put("success", false);
+            response.put("message", "Usuario no autenticado.");
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        }
+
+        try {
+            carritoService.limpiarCarrito(usuarioAutenticado);
+            
+            response.put("success", true);
+            response.put("message", "Carrito vaciado exitosamente.");
+            response.put("carritoCount", 0);
+            response.put("newSubtotal", BigDecimal.ZERO);
+            response.put("newDiscount", BigDecimal.ZERO);
+            response.put("newTotal", BigDecimal.ZERO);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            System.err.println("Error al vaciar el carrito: " + e.getMessage());
+            response.put("success", false);
+            response.put("message", "Error interno al vaciar el carrito.");
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }
