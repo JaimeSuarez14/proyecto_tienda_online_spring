@@ -107,6 +107,7 @@
                             
                             <!-- Estado con colores únicos -->
                             <td class="px-6 py-4 text-center">
+                                  <span  th:text="${orden.estado}"></span>
                                 <!-- Pendiente - Amarillo/Naranja -->
                                 <span th:if="${orden.estado == 'pendiente'}" 
                                     class="inline-block bg-yellow-100 text-yellow-800 px-4 py-2 rounded-full text-sm font-bold border-2 border-yellow-300">

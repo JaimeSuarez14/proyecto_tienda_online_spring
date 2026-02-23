@@ -63,6 +63,9 @@
             <a href="/productos" class="text-gray-700 hover:text-orange-600 font-medium flex items-center gap-1">
                 <i class="bi bi-box"></i> Productos
             </a>
+            <a href="/mis-ordenes" class="text-gray-700 hover:text-orange-600 font-medium flex items-center gap-1">
+                <i class="bi bi-history"></i> Mis Órdenes
+            </a>
             <a href="/carrito" class="relative flex items-center gap-1 text-gray-700 hover:text-orange-600 font-medium">
                 <i class="bi bi-cart"></i>
                 <span th:if="${carritoCount > 0}" class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center" th:text="${carritoCount}">0</span>
