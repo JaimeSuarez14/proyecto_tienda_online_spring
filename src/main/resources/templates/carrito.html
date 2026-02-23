@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,16 +11,19 @@
         body {
             font-family: 'Inter', sans-serif;
         }
+
         .card-shadow {
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
     </style>
 </head>
+
 <body class="bg-gray-100 flex flex-col min-h-screen">
 
     <!-- NAVBAR -->
     <nav class="bg-white shadow-md p-4 flex justify-between items-center">
-        <div class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-500 flex items-center gap-2">
+        <div
+            class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-500 flex items-center gap-2">
             <i class="fas fa-store"></i> PlazaChina
         </div>
         <div class="flex items-center space-x-4">
@@ -29,14 +33,17 @@
             <a href="/logout" class="text-red-600 hover:text-red-800 font-medium">Cerrar Sesión</a>
             <a href="/carrito" class="relative">
                 <i class="fas fa-shopping-cart text-xl text-orange-600 border-b-2 border-orange-600"></i>
-                <span th:if="${carritoCount > 0}" class="absolute top-[-8px] right-[-8px] bg-red-500 text-white text-xs font-semibold rounded-full px-2 py-0.5" th:text="${carritoCount}">0</span>
+                <span th:if="${carritoCount > 0}"
+                    class="absolute top-[-8px] right-[-8px] bg-red-500 text-white text-xs font-semibold rounded-full px-2 py-0.5"
+                    th:text="${carritoCount}">0</span>
             </a>
         </div>
     </nav>
 
     <!-- HEADER CON DEGRADADO -->
     <header class="py-14 text-center bg-gradient-to-r from-red-500 to-orange-400 mb-8">
-        <h1 class="text-4xl md:text-5xl font-extrabold text-white flex items-center justify-center gap-3 drop-shadow-lg">
+        <h1
+            class="text-4xl md:text-5xl font-extrabold text-white flex items-center justify-center gap-3 drop-shadow-lg">
             <i class="fas fa-shopping-cart"></i> Mi Carrito de Compras
         </h1>
         <p class="text-white text-lg mt-3 font-medium drop-shadow">Revisa tus productos antes de finalizar la compra</p>
@@ -45,7 +52,8 @@
     <main class="flex-grow container mx-auto p-4 md:p-8">
         <div th:if="${#lists.isEmpty(carritoItems)}" class="bg-white p-8 rounded-2xl shadow-lg text-center">
             <p class="text-gray-600 text-xl mb-4">Tu carrito está vacío.</p>
-            <a href="/productos" class="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-3 px-6 rounded-xl transition duration-300 ease-in-out transform hover:scale-105">
+            <a href="/productos"
+                class="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-3 px-6 rounded-xl transition duration-300 ease-in-out transform hover:scale-105">
                 Explorar Productos
             </a>
         </div>
@@ -54,43 +62,98 @@
             <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-lg">
                 <div class="flex justify-between items-center mb-6">
                     <h3 class="text-2xl font-semibold text-gray-700">Productos en tu Carrito</h3>
-                    <button onclick="vaciarCarritoCompleto()" class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200 flex items-center gap-2">
+                    <button onclick="vaciarCarritoCompleto()"
+                        class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200 flex items-center gap-2">
                         <i class="fas fa-broom"></i> Vaciar Carrito
                     </button>
                 </div>
-                <div th:each="item : ${carritoItems}" th:id="'item-' + ${item.id}" class="flex items-center border-b border-gray-200 py-4 last:border-b-0">
+                <div th:each="item : ${carritoItems}" th:id="'item-' + ${item.id}"
+                    class="flex items-center border-b border-gray-200 py-4 last:border-b-0">
                     <img th:src="${item.producto.imagenUrl != null and item.producto.imagenUrl != '' ? item.producto.imagenUrl : 'https://placehold.co/100x100/E0E0E0/6A11CB?text=Producto'}"
-                         alt="Imagen del producto" class="w-24 h-24 object-cover object-center rounded-lg mr-4">
+                        alt="Imagen del producto" class="w-24 h-24 object-cover object-center rounded-lg mr-4">
                     <div class="flex-grow">
-                        <h4 class="text-lg font-semibold text-gray-800" th:text="${item.producto.nombre}">Nombre Producto</h4>
-                        <p class="text-gray-600 text-sm" th:text="${item.producto.categoria.descripcion} + ' - ' + ${item.producto.marca} + ' - ' + ${item.producto.unidadMedida}">Categoría - Marca - Unidad</p>
+                        <h4 class="text-lg font-semibold text-gray-800" th:text="${item.producto.nombre}">Nombre
+                            Producto</h4>
+                        <p class="text-gray-600 text-sm"
+                            th:text="${item.producto.categoria.descripcion} + ' - ' + ${item.producto.marca} + ' - ' + ${item.producto.unidadMedida}">
+                            Categoría - Marca - Unidad</p>
                         <div class="flex items-baseline mt-1">
                             <span th:if="${item.producto.descuento > 0}" class="text-red-500 font-bold mr-2"
-                                  th:text="'S/ ' + ${#numbers.formatDecimal(item.producto.precio * (1 - item.producto.descuento/100), 1, 'COMMA', 2, 'POINT')}">S/ XX.XX</span>
-                            <span th:classappend="${item.producto.descuento > 0 ? 'line-through text-gray-500 text-sm' : 'text-orange-700 font-bold'}"
-                                  th:text="'S/ ' + ${#numbers.formatDecimal(item.producto.precio, 1, 'COMMA', 2, 'POINT')}">S/ XX.XX</span>
+                                th:text="'S/ ' + ${#numbers.formatDecimal(item.producto.precio * (1 - item.producto.descuento/100), 1, 'COMMA', 2, 'POINT')}">S/
+                                XX.XX</span>
+                            <span
+                                th:classappend="${item.producto.descuento > 0 ? 'line-through text-gray-500 text-sm' : 'text-orange-700 font-bold'}"
+                                th:text="'S/ ' + ${#numbers.formatDecimal(item.producto.precio, 1, 'COMMA', 2, 'POINT')}">S/
+                                XX.XX</span>
                         </div>
                     </div>
                     <div class="flex items-center space-x-3">
-                        <button onclick="updateQuantity(this, -1)" th:data-item-id="${item.id}" th:data-current-qty="${item.cantidad}"
-                                class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-1 px-3 rounded-full transition duration-200">
+                        <button onclick="updateQuantity(this, -1)" th:data-item-id="${item.id}"
+                            th:data-current-qty="${item.cantidad}"
+                            class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-1 px-3 rounded-full transition duration-200">
                             -
                         </button>
-                        <span th:text="${item.cantidad}" class="text-lg font-medium" th:id="'qty-' + ${item.id}">1</span>
-                        <button onclick="updateQuantity(this, 1)" th:data-item-id="${item.id}" th:data-current-qty="${item.cantidad}"
-                                class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-1 px-3 rounded-full transition duration-200">
+                        <span th:text="${item.cantidad}" class="text-lg font-medium"
+                            th:id="'qty-' + ${item.id}">1</span>
+                        <button onclick="updateQuantity(this, 1)" th:data-item-id="${item.id}"
+                            th:data-current-qty="${item.cantidad}"
+                            class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-1 px-3 rounded-full transition duration-200">
                             +
                         </button>
                         <button onclick="removeItem(this)" th:data-item-id="${item.id}"
-                                class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-3 rounded-xl transition duration-300 ease-in-out transform hover:scale-105 ml-4">
+                            class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-3 rounded-xl transition duration-300 ease-in-out transform hover:scale-105 ml-4">
                             <i class="fas fa-trash-alt"></i>
                         </button>
                     </div>
                 </div>
             </div>
+            <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-lg h-fit sticky top-4">
+                <h3 class="text-2xl font-semibold text-gray-700 mb-6">Resumen del Pedido</h3>
+                <div class="flex justify-between text-lg text-gray-700 mb-2">
+                    <span>Subtotal:</span>
+                    <span id="subtotal"
+                        th:text="'S/ ' + ${#numbers.formatDecimal(totalCarrito, 1, 'COMMA', 2, 'POINT')}">S/ 0.00</span>
+                </div>
+                <div class="flex justify-between text-lg text-gray-700 mb-4">
+                    <span>Descuento:</span>
+                    <span id="descuento"
+                        th:text="'S/ ' + ${#numbers.formatDecimal(totalDescuento, 1, 'COMMA', 2, 'POINT')}">S/
+                        0.00</span>
+                </div>
+                <div class="flex justify-between text-2xl font-bold text-gray-800 border-t-2 border-gray-200 pt-4 mt-4">
+                    <span>Total a Pagar:</span>
+                    <span id="total-pagar"
+                        th:text="'S/ ' + ${#numbers.formatDecimal(totalConDescuento, 1, 'COMMA', 2, 'POINT')}">S/
+                        0.00</span>
+                </div>
+
+                <h4 class="text-xl font-semibold text-gray-700 mt-8 mb-4">Método de Pago</h4>
+                <div class="space-y-3">
+                    <label
+                        class="flex items-center bg-gray-50 p-3 rounded-lg cursor-pointer hover:bg-gray-100 transition duration-200">
+                        <input type="radio" name="metodoPago" value="yape" class="form-radio h-5 w-5 text-orange-600"
+                            checked>
+                        <span class="ml-3 text-gray-800 font-medium">Yape</span>
+                    </label>
+                    <label
+                        class="flex items-center bg-gray-50 p-3 rounded-lg cursor-pointer hover:bg-gray-100 transition duration-200">
+                        <input type="radio" name="metodoPago" value="plin" class="form-radio h-5 w-5 text-orange-600">
+                        <span class="ml-3 text-gray-800 font-medium">Plin</span>
+                    </label>
+                    <label
+                        class="flex items-center bg-gray-50 p-3 rounded-lg cursor-pointer hover:bg-gray-100 transition duration-200">
+                        <input type="radio" name="metodoPago" value="paypal" class="form-radio h-5 w-5 text-orange-600">
+                        <span class="ml-3 text-gray-800 font-medium">PayPal</span>
+                    </label>
+                </div>
+
+                <button onclick="proceedToCheckout()"
+                    class="mt-8 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-3 px-6 rounded-xl w-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105">
+                    <i class="fas fa-money-bill-wave mr-2"></i> Ir a Pagar
+                </button>
+            </div>
 
 
-            
         </div>
     </main>
 
@@ -98,27 +161,31 @@
     <div id="messageModal" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 hidden">
         <div class="bg-white p-6 rounded-lg shadow-lg text-center">
             <p id="messageText" class="text-lg font-semibold mb-4"></p>
-            <button onclick="hideMessageModal()" class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-lg">Cerrar</button>
+            <button onclick="hideMessageModal()"
+                class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-lg">Cerrar</button>
         </div>
     </div>
 
     <!-- Modal de Confirmación para Eliminar -->
-    <div id="confirmDeleteModal" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 hidden">
+    <div id="confirmDeleteModal"
+        class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 hidden">
         <div class="bg-white p-8 rounded-lg shadow-lg text-center max-w-md">
             <i class="fas fa-exclamation-triangle text-red-500 text-5xl mb-4"></i>
             <h3 class="text-2xl font-bold text-gray-800 mb-4">Confirmar Eliminación</h3>
             <p class="text-gray-600 mb-6">¿Estás seguro de que deseas eliminar este producto del carrito?</p>
             <div class="flex gap-4 justify-center">
-                <button onclick="cancelDeleteItem()" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-lg transition">
+                <button onclick="cancelDeleteItem()"
+                    class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-lg transition">
                     Cancelar
                 </button>
-                <button onclick="confirmDeleteItem()" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-6 rounded-lg transition">
+                <button onclick="confirmDeleteItem()"
+                    class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-6 rounded-lg transition">
                     Eliminar
                 </button>
             </div>
         </div>
     </div>
- <!-- Footer personalizado -->
+    <!-- Footer personalizado -->
     <footer class="bg-[#232b34] text-white pt-10 pb-4 mt-8">
         <div class="container mx-auto px-4 md:px-8">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8 pb-6 border-b border-gray-700">
@@ -155,9 +222,12 @@
                 <div>
                     <h3 class="text-xl font-bold text-red-400 mb-4">Síguenos</h3>
                     <div class="flex space-x-4 mb-3">
-                        <a href="https://www.facebook.com/plazachinaica/?locale=es_LA" class="hover:text-red-400 text-2xl"><i class="fab fa-facebook"></i></a>
-                        <a href="https://www.instagram.com/reel/DDTZvdxMEbn/" class="hover:text-red-400 text-2xl"><i class="fab fa-instagram"></i></a>
-                        <a href="https://www.tiktok.com/@plazachinacenter.oficial" class="hover:text-red-400 text-2xl"><i class="fab fa-tiktok"></i></a>
+                        <a href="https://www.facebook.com/plazachinaica/?locale=es_LA"
+                            class="hover:text-red-400 text-2xl"><i class="fab fa-facebook"></i></a>
+                        <a href="https://www.instagram.com/reel/DDTZvdxMEbn/" class="hover:text-red-400 text-2xl"><i
+                                class="fab fa-instagram"></i></a>
+                        <a href="https://www.tiktok.com/@plazachinacenter.oficial"
+                            class="hover:text-red-400 text-2xl"><i class="fab fa-tiktok"></i></a>
                         <a href="#" class="hover:text-red-400 text-2xl"><i class="fab fa-youtube"></i></a>
                     </div>
                     <div class="text-gray-200 mb-1">Métodos de pago</div>
@@ -208,7 +278,7 @@
 
         async function confirmDeleteItem() {
             hideConfirmDeleteModal();
-            
+
             if (!itemIdToDelete || itemIdToDelete === 'null') {
                 console.error('itemIdToDelete no es válido:', itemIdToDelete);
                 showMessageModal('Error: No se pudo identificar el producto a eliminar.', false);
@@ -222,7 +292,7 @@
             try {
                 const deleteUrl = '/carrito/eliminar/' + String(itemIdToDelete).trim();
                 console.log('Enviando DELETE a:', deleteUrl);
-                
+
                 const response = await fetch(deleteUrl, {
                     method: 'DELETE'
                 });
@@ -232,12 +302,14 @@
                 if (response.ok) {
                     const data = await response.json();
                     console.log('Respuesta exitosa:', data);
-                    
+
                     if (itemElement) {
                         itemElement.remove();
                         console.log('Elemento removido del DOM');
                     }
-                    
+                    document.getElementById('subtotal').innerText = `S/ ${data.newSubtotal.toFixed(2)}`;
+                    document.getElementById('descuento').innerText = `S/ ${data.newDiscount.toFixed(2)}`;
+                    document.getElementById('total-pagar').innerText = `S/ ${data.newTotal.toFixed(2)}`;
                     const carritoCountSpan = document.querySelector('nav .fa-shopping-cart + span');
                     if (carritoCountSpan) {
                         carritoCountSpan.innerText = data.carritoCount;
@@ -247,9 +319,9 @@
                             carritoCountSpan.classList.add('hidden');
                         }
                     }
-                    
+
                     showMessageModal('Producto eliminado del carrito.', true);
-                    
+
                     if (data.carritoCount === 0) {
                         setTimeout(() => {
                             window.location.reload();
@@ -268,7 +340,7 @@
             }
         }
 
-        window.onclick = function(event) {
+        window.onclick = function (event) {
             const messageModal = document.getElementById('messageModal');
             const confirmDeleteModal = document.getElementById('confirmDeleteModal');
             if (event.target == messageModal) {
@@ -303,7 +375,9 @@
                 if (response.ok) {
                     const data = await response.json();
                     document.getElementById('qty-' + itemId).innerText = data.newQuantity;
-                    
+                    document.getElementById('subtotal').innerText = `S/ ${data.newSubtotal.toFixed(2)}`;
+                    document.getElementById('descuento').innerText = `S/ ${data.newDiscount.toFixed(2)}`;
+                    document.getElementById('total-pagar').innerText = `S/ ${data.newTotal.toFixed(2)}`;
                     const carritoCountSpan = document.querySelector('nav .fa-shopping-cart + span');
                     if (carritoCountSpan) {
                         carritoCountSpan.innerText = data.carritoCount;
@@ -327,13 +401,13 @@
         function removeItem(button) {
             itemIdToDelete = button.getAttribute('data-item-id');
             console.log('itemIdToDelete:', itemIdToDelete);
-            
-            if (!itemIdToDelete ) {
+
+            if (!itemIdToDelete) {
                 console.error('No se pudo obtener el itemId del botón');
                 showMessageModal('Error al obtener el ID del producto.', false);
                 return;
             }
-            
+
             showConfirmDeleteModal();
         }
 
@@ -356,7 +430,7 @@
                         const data = await response.json();
                         console.log('Carrito vaciado exitosamente:', data);
                         showMessageModal('Carrito vaciado correctamente.', true);
-                        
+
                         // Recargar la página después de 1.5 segundos
                         setTimeout(() => {
                             window.location.reload();
@@ -373,4 +447,5 @@
         }
     </script>
 </body>
+
 </html>
