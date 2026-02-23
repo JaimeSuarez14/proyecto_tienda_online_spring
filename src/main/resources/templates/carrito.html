@@ -76,9 +76,10 @@
                                 class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-1 px-3 rounded-full transition duration-200">
                             +
                         </button>
-                        
-
-
+                        <button onclick="removeItem(this)" th:data-item-id="${item.id}"
+                                class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-3 rounded-xl transition duration-300 ease-in-out transform hover:scale-105 ml-4">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -93,6 +94,23 @@
         <div class="bg-white p-6 rounded-lg shadow-lg text-center">
             <p id="messageText" class="text-lg font-semibold mb-4"></p>
             <button onclick="hideMessageModal()" class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-lg">Cerrar</button>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmación para Eliminar -->
+    <div id="confirmDeleteModal" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 hidden">
+        <div class="bg-white p-8 rounded-lg shadow-lg text-center max-w-md">
+            <i class="fas fa-exclamation-triangle text-red-500 text-5xl mb-4"></i>
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">Confirmar Eliminación</h3>
+            <p class="text-gray-600 mb-6">¿Estás seguro de que deseas eliminar este producto del carrito?</p>
+            <div class="flex gap-4 justify-center">
+                <button onclick="cancelDeleteItem()" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-lg transition">
+                    Cancelar
+                </button>
+                <button onclick="confirmDeleteItem()" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-6 rounded-lg transition">
+                    Eliminar
+                </button>
+            </div>
         </div>
     </div>
  <!-- Footer personalizado -->
@@ -153,6 +171,9 @@
     </footer>
 
     <script>
+        // Variable para almacenar el itemId a eliminar
+        let itemIdToDelete = null;
+
         // Funciones para el modal de mensajes (reutilizadas)
         function showMessageModal(message, isSuccess = true) {
             const modal = document.getElementById('messageModal');
@@ -167,10 +188,89 @@
             document.getElementById('messageModal').classList.add('hidden');
         }
 
+        // Funciones para el modal de confirmación
+        function showConfirmDeleteModal() {
+            document.getElementById('confirmDeleteModal').classList.remove('hidden');
+        }
+
+        function hideConfirmDeleteModal() {
+            document.getElementById('confirmDeleteModal').classList.add('hidden');
+        }
+
+        function cancelDeleteItem() {
+            hideConfirmDeleteModal();
+        }
+
+        async function confirmDeleteItem() {
+            hideConfirmDeleteModal();
+            
+            if (!itemIdToDelete || itemIdToDelete === 'null') {
+                console.error('itemIdToDelete no es válido:', itemIdToDelete);
+                showMessageModal('Error: No se pudo identificar el producto a eliminar.', false);
+                return;
+            }
+
+            console.log('Iniciando eliminación del item:', itemIdToDelete);
+            const itemElement = document.getElementById('item-' + itemIdToDelete);
+            console.log('Elemento DOM encontrado:', itemElement);
+
+            try {
+                const deleteUrl = '/carrito/eliminar/' + String(itemIdToDelete).trim();
+                console.log('Enviando DELETE a:', deleteUrl);
+                
+                const response = await fetch(deleteUrl, {
+                    method: 'DELETE'
+                });
+
+                console.log('Response status:', response.status, 'OK:', response.ok);
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('Respuesta exitosa:', data);
+                    
+                    if (itemElement) {
+                        itemElement.remove();
+                        console.log('Elemento removido del DOM');
+                    }
+                    
+                    const carritoCountSpan = document.querySelector('nav .fa-shopping-cart + span');
+                    if (carritoCountSpan) {
+                        carritoCountSpan.innerText = data.carritoCount;
+                        if (data.carritoCount > 0) {
+                            carritoCountSpan.classList.remove('hidden');
+                        } else {
+                            carritoCountSpan.classList.add('hidden');
+                        }
+                    }
+                    
+                    showMessageModal('Producto eliminado del carrito.', true);
+                    
+                    if (data.carritoCount === 0) {
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1500);
+                    }
+                } else {
+                    console.error('Error response status:', response.status);
+                    const errorData = await response.json().catch(() => ({}));
+                    showMessageModal(errorData.message || 'Error al eliminar producto.', false);
+                }
+            } catch (error) {
+                console.error('Error en confirmDeleteItem:', error);
+                showMessageModal('Error de conexión: ' + error.message, false);
+            } finally {
+                itemIdToDelete = null;
+            }
+        }
+
         window.onclick = function(event) {
             const messageModal = document.getElementById('messageModal');
+            const confirmDeleteModal = document.getElementById('confirmDeleteModal');
             if (event.target == messageModal) {
                 messageModal.classList.add('hidden');
+            }
+            if (event.target == confirmDeleteModal) {
+                confirmDeleteModal.classList.add('hidden');
             }
         }
 
@@ -198,7 +298,7 @@
                 if (response.ok) {
                     const data = await response.json();
                     document.getElementById('qty-' + itemId).innerText = data.newQuantity;
-                   
+                    
                     const carritoCountSpan = document.querySelector('nav .fa-shopping-cart + span');
                     if (carritoCountSpan) {
                         carritoCountSpan.innerText = data.carritoCount;
@@ -219,40 +319,17 @@
             }
         }
 
-        async function removeItem(button) {
-            const itemId = button.dataset.itemId;
-            try {
-                const response = await fetch('/carrito/eliminar/' + itemId, {
-                    method: 'DELETE'
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    document.getElementById('item-' + itemId).remove();
-                    document.getElementById('subtotal').innerText = `S/ ${data.newSubtotal.toFixed(2)}`;
-                    document.getElementById('descuento').innerText = `S/ ${data.newDiscount.toFixed(2)}`;
-                    document.getElementById('total-pagar').innerText = `S/ ${data.newTotal.toFixed(2)}`;
-                    const carritoCountSpan = document.querySelector('nav .fa-shopping-cart + span');
-                    if (carritoCountSpan) {
-                        carritoCountSpan.innerText = data.carritoCount;
-                        if (data.carritoCount > 0) {
-                            carritoCountSpan.classList.remove('hidden');
-                        } else {
-                            carritoCountSpan.classList.add('hidden');
-                        }
-                    }
-                    if (data.carritoCount === 0) {
-                        window.location.reload();
-                    }
-                    showMessageModal('Producto eliminado del carrito.', true);
-                } else {
-                    const errorData = await response.json();
-                    showMessageModal(errorData.message || 'Error al eliminar producto.', false);
-                }
-            } catch (error) {
-                console.error('Error al eliminar producto:', error);
-                showMessageModal('Error de conexión. Inténtalo de nuevo.', false);
+        function removeItem(button) {
+            itemIdToDelete = button.getAttribute('data-item-id');
+            console.log('itemIdToDelete:', itemIdToDelete);
+            
+            if (!itemIdToDelete ) {
+                console.error('No se pudo obtener el itemId del botón');
+                showMessageModal('Error al obtener el ID del producto.', false);
+                return;
             }
+            
+            showConfirmDeleteModal();
         }
 
         function proceedToCheckout() {

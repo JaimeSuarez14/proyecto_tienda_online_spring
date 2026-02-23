@@ -90,6 +90,11 @@ public class CarritoRestController {
     public ResponseEntity<Map<String, Object>> agregarProductoAlCarrito(@RequestBody AddToCartRequest request, HttpSession session) {
         Map<String, Object> response = new HashMap<>();
         Usuario usuarioAutenticado = (Usuario) session.getAttribute("usuarioAutenticado");
+        
+        // Si no encuentra con ese nombre, intenta con el otro
+        if (usuarioAutenticado == null) {
+            usuarioAutenticado = (Usuario) session.getAttribute("usuarioLogueado");
+        }
 
         if (usuarioAutenticado == null) {
             response.put("success", false);
@@ -137,6 +142,11 @@ public class CarritoRestController {
     public ResponseEntity<Map<String, Object>> actualizarCantidadEnCarrito(@RequestBody UpdateCartItemRequest request, HttpSession session) {
         Map<String, Object> response = new HashMap<>();
         Usuario usuarioAutenticado = (Usuario) session.getAttribute("usuarioAutenticado");
+        
+        // Si no encuentra con ese nombre, intenta con el otro
+        if (usuarioAutenticado == null) {
+            usuarioAutenticado = (Usuario) session.getAttribute("usuarioLogueado");
+        }
 
         if (usuarioAutenticado == null) {
             response.put("success", false);
@@ -187,4 +197,61 @@ public class CarritoRestController {
     }
 
     
+
+    /**
+     * Endpoint para eliminar un producto del carrito.
+     * @param itemId El ID del ítem del carrito a eliminar.
+     * @param session La sesión HTTP para obtener el usuario autenticado.
+     * @return Una respuesta JSON con los totales actualizados del carrito.
+     */
+    @DeleteMapping("/eliminar/{itemId}")
+    public ResponseEntity<Map<String, Object>> eliminarProductoDelCarrito(@PathVariable Long itemId, HttpSession session) {
+        Map<String, Object> response = new HashMap<>();
+        Usuario usuarioAutenticado = (Usuario) session.getAttribute("usuarioAutenticado");
+        
+        // Si no encuentra con ese nombre, intenta con el otro
+        if (usuarioAutenticado == null) {
+            usuarioAutenticado = (Usuario) session.getAttribute("usuarioLogueado");
+        }
+
+        if (usuarioAutenticado == null) {
+            response.put("success", false);
+            response.put("message", "Usuario no autenticado.");
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        }
+
+        try {
+            carritoService.eliminarItemDelCarrito(itemId);
+
+            // Recalcular totales del carrito
+            List<Carrito> carritoItems = carritoService.findByUsuario(usuarioAutenticado);
+            BigDecimal subtotal = BigDecimal.ZERO;
+            BigDecimal totalDescuento = BigDecimal.ZERO;
+
+            for (Carrito item : carritoItems) {
+                BigDecimal precioUnitario = item.getProducto().getPrecio();
+                BigDecimal descuentoUnitario = item.getProducto().getDescuento();
+                BigDecimal precioConDescuento = precioUnitario.multiply(BigDecimal.ONE.subtract(descuentoUnitario.divide(BigDecimal.valueOf(100))));
+
+                subtotal = subtotal.add(precioUnitario.multiply(BigDecimal.valueOf(item.getCantidad())));
+                totalDescuento = totalDescuento.add((precioUnitario.subtract(precioConDescuento)).multiply(BigDecimal.valueOf(item.getCantidad())));
+            }
+            BigDecimal totalConDescuento = subtotal.subtract(totalDescuento);
+            int carritoCount = carritoService.countItemsInCarrito(usuarioAutenticado);
+
+            response.put("success", true);
+            response.put("message", "Producto eliminado del carrito exitosamente.");
+            response.put("newSubtotal", subtotal);
+            response.put("newDiscount", totalDescuento);
+            response.put("newTotal", totalConDescuento);
+            response.put("carritoCount", carritoCount);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            System.err.println("Error al eliminar producto del carrito: " + e.getMessage());
+            response.put("success", false);
+            response.put("message", "Error interno al eliminar el producto.");
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }
