@@ -81,11 +81,21 @@ public class CarritoServiceImpl implements CarritoService {
         carritoRepository.deleteAll(items);
     }
 
+    /**
+     * Elimina un ítem del carrito por su ID.
+     * @param carritoId El ID del ítem del carrito a eliminar.
+     */
     @Override
     public void eliminarItemDelCarrito(Long carritoId) {
         carritoRepository.deleteById(carritoId);
     }
 
+    /**
+     * Actualiza la cantidad de un producto en el carrito.
+     * @param carritoId El ID del ítem del carrito a actualizar.
+     * @param cantidad La nueva cantidad.
+     * @return El objeto Carrito actualizado, o Optional.empty() si no se encuentra.
+     */
     @Override
     public Optional<Carrito> actualizarCantidadEnCarrito(Long carritoId, int cantidad) {
         Optional<Carrito> carritoOptional = carritoRepository.findById(carritoId);
@@ -95,8 +105,8 @@ public class CarritoServiceImpl implements CarritoService {
                 carrito.setCantidad(cantidad);
                 return Optional.of(carritoRepository.save(carrito));
             } else {
-                // Si la cantidad es 0 o negativa, eliminar el item
-                carritoRepository.deleteById(carritoId);
+                // Si la cantidad es 0 o menos, eliminar el ítem del carrito
+                carritoRepository.delete(carrito);
                 return Optional.empty();
             }
         }
