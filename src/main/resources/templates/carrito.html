@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlazaChina - Mi Carrito</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex flex-col min-h-screen">
+
+    <!-- NAVBAR -->
+    <nav class="bg-white shadow-md p-4 flex justify-between items-center">
+        <div class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-500 flex items-center gap-2">
+            <i class="fas fa-store"></i> PlazaChina
+        </div>
+        <div class="flex items-center space-x-4">
+            <a href="/bienvenida" class="text-gray-700 hover:text-orange-600 font-medium">Inicio</a>
+            <a href="/nosotros" class="text-gray-700 hover:text-orange-600 font-medium">Nosotros</a>
+            <a href="/productos" class="text-gray-700 hover:text-orange-600 font-medium">Productos</a>
+            <a href="/logout" class="text-red-600 hover:text-red-800 font-medium">Cerrar Sesión</a>
+            <a href="/carrito" class="relative">
+                <i class="fas fa-shopping-cart text-xl text-orange-600 border-b-2 border-orange-600"></i>
+                <span th:if="${carritoCount > 0}" class="absolute top-[-8px] right-[-8px] bg-red-500 text-white text-xs font-semibold rounded-full px-2 py-0.5" th:text="${carritoCount}">0</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- HEADER CON DEGRADADO -->
+    <header class="py-14 text-center bg-gradient-to-r from-red-500 to-orange-400 mb-8">
+        <h1 class="text-4xl md:text-5xl font-extrabold text-white flex items-center justify-center gap-3 drop-shadow-lg">
+            <i class="fas fa-shopping-cart"></i> Mi Carrito de Compras
+        </h1>
+        <p class="text-white text-lg mt-3 font-medium drop-shadow">Revisa tus productos antes de finalizar la compra</p>
+    </header>
+
+    <main class="flex-grow container mx-auto p-4 md:p-8">
+        <div th:if="${#lists.isEmpty(carritoItems)}" class="bg-white p-8 rounded-2xl shadow-lg text-center">
+            <p class="text-gray-600 text-xl mb-4">Tu carrito está vacío.</p>
+            <a href="/productos" class="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-3 px-6 rounded-xl transition duration-300 ease-in-out transform hover:scale-105">
+                Explorar Productos
+            </a>
+        </div>
+
+        <div th:if="${!#lists.isEmpty(carritoItems)}" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-lg">
+                <h3 class="text-2xl font-semibold text-gray-700 mb-6">Productos en tu Carrito</h3>
+                <div th:each="item : ${carritoItems}" th:id="'item-' + ${item.id}" class="flex items-center border-b border-gray-200 py-4 last:border-b-0">
+                    <img th:src="${item.producto.imagenUrl != null and item.producto.imagenUrl != '' ? item.producto.imagenUrl : 'https://placehold.co/100x100/E0E0E0/6A11CB?text=Producto'}"
+                         alt="Imagen del producto" class="w-24 h-24 object-cover object-center rounded-lg mr-4">
+                    <div class="flex-grow">
+                        <h4 class="text-lg font-semibold text-gray-800" th:text="${item.producto.nombre}">Nombre Producto</h4>
+                        <p class="text-gray-600 text-sm" th:text="${item.producto.categoria.descripcion} + ' - ' + ${item.producto.marca} + ' - ' + ${item.producto.unidadMedida}">Categoría - Marca - Unidad</p>
+                        <div class="flex items-baseline mt-1">
+                            <span th:if="${item.producto.descuento > 0}" class="text-red-500 font-bold mr-2"
+                                  th:text="'S/ ' + ${#numbers.formatDecimal(item.producto.precio * (1 - item.producto.descuento/100), 1, 'COMMA', 2, 'POINT')}">S/ XX.XX</span>
+                            <span th:classappend="${item.producto.descuento > 0 ? 'line-through text-gray-500 text-sm' : 'text-orange-700 font-bold'}"
+                                  th:text="'S/ ' + ${#numbers.formatDecimal(item.producto.precio, 1, 'COMMA', 2, 'POINT')}">S/ XX.XX</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <button onclick="updateQuantity(this, -1)" th:data-item-id="${item.id}" th:data-current-qty="${item.cantidad}"
+                                class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-1 px-3 rounded-full transition duration-200">
+                            -
+                        </button>
+                        <span th:text="${item.cantidad}" class="text-lg font-medium" th:id="'qty-' + ${item.id}">1</span>
+                        <button onclick="updateQuantity(this, 1)" th:data-item-id="${item.id}" th:data-current-qty="${item.cantidad}"
+                                class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-1 px-3 rounded-full transition duration-200">
+                            +
+                        </button>
+                        <button onclick="removeItem(this)" th:data-item-id="${item.id}"
+                                class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-3 rounded-xl transition duration-300 ease-in-out transform hover:scale-105 ml-4">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-1 bg-white p-6 rounded-2xl shadow-lg h-fit sticky top-4">
+                <h3 class="text-2xl font-semibold text-gray-700 mb-6">Resumen del Pedido</h3>
+                <div class="flex justify-between text-lg text-gray-700 mb-2">
+                    <span>Subtotal:</span>
+                    <span id="subtotal" th:text="'S/ ' + ${#numbers.formatDecimal(totalCarrito, 1, 'COMMA', 2, 'POINT')}">S/ 0.00</span>
+                </div>
+                <div class="flex justify-between text-lg text-gray-700 mb-4">
+                    <span>Descuento:</span>
+                    <span id="descuento" th:text="'S/ ' + ${#numbers.formatDecimal(totalDescuento, 1, 'COMMA', 2, 'POINT')}">S/ 0.00</span>
+                </div>
+                <div class="flex justify-between text-2xl font-bold text-gray-800 border-t-2 border-gray-200 pt-4 mt-4">
+                    <span>Total a Pagar:</span>
+                    <span id="total-pagar" th:text="'S/ ' + ${#numbers.formatDecimal(totalConDescuento, 1, 'COMMA', 2, 'POINT')}">S/ 0.00</span>
+                </div>
+
+                <h4 class="text-xl font-semibold text-gray-700 mt-8 mb-4">Método de Pago</h4>
+                <div class="space-y-3">
+                    <label class="flex items-center bg-gray-50 p-3 rounded-lg cursor-pointer hover:bg-gray-100 transition duration-200">
+                        <input type="radio" name="metodoPago" value="yape" class="form-radio h-5 w-5 text-orange-600" checked>
+                        <span class="ml-3 text-gray-800 font-medium">Yape</span>
+                    </label>
+                    <label class="flex items-center bg-gray-50 p-3 rounded-lg cursor-pointer hover:bg-gray-100 transition duration-200">
+                        <input type="radio" name="metodoPago" value="plin" class="form-radio h-5 w-5 text-orange-600">
+                        <span class="ml-3 text-gray-800 font-medium">Plin</span>
+                    </label>
+                    <label class="flex items-center bg-gray-50 p-3 rounded-lg cursor-pointer hover:bg-gray-100 transition duration-200">
+                        <input type="radio" name="metodoPago" value="paypal" class="form-radio h-5 w-5 text-orange-600">
+                        <span class="ml-3 text-gray-800 font-medium">PayPal</span>
+                    </label>
+                </div>
+
+                <button onclick="proceedToCheckout()" class="mt-8 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-3 px-6 rounded-xl w-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105">
+                    <i class="fas fa-money-bill-wave mr-2"></i> Ir a Pagar
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal de mensajes -->
+    <div id="messageModal" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 hidden">
+        <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+            <p id="messageText" class="text-lg font-semibold mb-4"></p>
+            <button onclick="hideMessageModal()" class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-lg">Cerrar</button>
+        </div>
+    </div>
+ <!-- Footer personalizado -->
+    <footer class="bg-[#232b34] text-white pt-10 pb-4 mt-8">
+        <div class="container mx-auto px-4 md:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 pb-6 border-b border-gray-700">
+                <!-- Plaza China Ica -->
+                <div>
+                    <h3 class="text-xl font-bold text-red-400 mb-4">Plaza China Ica</h3>
+                    <ul class="space-y-2 text-gray-200">
+                        <li><i class="fas fa-map-marker-alt mr-2"></i>Av. Municipalidad #233, Ica</li>
+                        <li><i class="fas fa-phone mr-2"></i>(056) 123456</li>
+                        <li><i class="fab fa-whatsapp mr-2"></i>+51 987 654 321</li>
+                        <li><i class="fas fa-envelope mr-2"></i>contacto@plazachinaica.com</li>
+                    </ul>
+                </div>
+                <!-- Horario -->
+                <div>
+                    <h3 class="text-xl font-bold text-red-400 mb-4">Horario</h3>
+                    <ul class="space-y-2 text-gray-200">
+                        <li><span class="font-bold">Lunes a Viernes:</span> 9:00 AM - 8:00 PM</li>
+                        <li><span class="font-bold">Sábados:</span> 9:00 AM - 9:00 PM</li>
+                        <li><span class="font-bold">Domingos:</span> 9:00 AM - 6:00 PM</li>
+                    </ul>
+                </div>
+                <!-- Enlaces -->
+                <div>
+                    <h3 class="text-xl font-bold text-red-400 mb-4">Enlaces</h3>
+                    <ul class="space-y-2 text-gray-200">
+                        <li><a href="/nosotros" class="hover:text-red-400">Nosotros</a></li>
+                        <li><a href="/productos" class="hover:text-red-400">Productos</a></li>
+                        <li><a href="/nosotros" class="hover:text-red-400">Contacto</a></li>
+                        <li><a href="/nosotros" class="hover:text-red-400">Términos y condiciones</a></li>
+                    </ul>
+                </div>
+                <!-- Síguenos -->
+                <div>
+                    <h3 class="text-xl font-bold text-red-400 mb-4">Síguenos</h3>
+                    <div class="flex space-x-4 mb-3">
+                        <a href="https://www.facebook.com/plazachinaica/?locale=es_LA" class="hover:text-red-400 text-2xl"><i class="fab fa-facebook"></i></a>
+                        <a href="https://www.instagram.com/reel/DDTZvdxMEbn/" class="hover:text-red-400 text-2xl"><i class="fab fa-instagram"></i></a>
+                        <a href="https://www.tiktok.com/@plazachinacenter.oficial" class="hover:text-red-400 text-2xl"><i class="fab fa-tiktok"></i></a>
+                        <a href="#" class="hover:text-red-400 text-2xl"><i class="fab fa-youtube"></i></a>
+                    </div>
+                    <div class="text-gray-200 mb-1">Métodos de pago</div>
+                    <div class="flex space-x-4 text-2xl">
+                        <i class="fas fa-credit-card"></i>
+                        <i class="fab fa-cc-paypal"></i>
+                        <i class="fas fa-money-check-alt"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center text-gray-400 text-sm mt-6">
+                &copy; 2025 Plaza China Ica. Todos los derechos reservados.<br>
+                Desarrollado con <span class="text-red-400">&#10084;</span> para los clientes de Ica
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Funciones para el modal de mensajes (reutilizadas)
+        function showMessageModal(message, isSuccess = true) {
+            const modal = document.getElementById('messageModal');
+            const messageText = document.getElementById('messageText');
+            messageText.innerText = message;
+            messageText.classList.remove('text-green-700', 'text-red-700');
+            messageText.classList.add(isSuccess ? 'text-green-700' : 'text-red-700');
+            modal.classList.remove('hidden');
+        }
+
+        function hideMessageModal() {
+            document.getElementById('messageModal').classList.add('hidden');
+        }
+
+        window.onclick = function(event) {
+            const messageModal = document.getElementById('messageModal');
+            if (event.target == messageModal) {
+                messageModal.classList.add('hidden');
+            }
+        }
+
+        async function updateQuantity(button, change) {
+            const itemId = button.dataset.itemId;
+            let currentQty = parseInt(document.getElementById('qty-' + itemId).innerText);
+            let newQty = currentQty + change;
+
+            if (newQty < 1) {
+                if (confirm('¿Deseas eliminar este producto del carrito?')) {
+                    removeItem(button);
+                }
+                return;
+            }
+
+            try {
+                const response = await fetch('/carrito/actualizarCantidad', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ itemId: itemId, cantidad: newQty })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('qty-' + itemId).innerText = data.newQuantity;
+                    document.getElementById('subtotal').innerText = `S/ ${data.newSubtotal.toFixed(2)}`;
+                    document.getElementById('descuento').innerText = `S/ ${data.newDiscount.toFixed(2)}`;
+                    document.getElementById('total-pagar').innerText = `S/ ${data.newTotal.toFixed(2)}`;
+                    const carritoCountSpan = document.querySelector('nav .fa-shopping-cart + span');
+                    if (carritoCountSpan) {
+                        carritoCountSpan.innerText = data.carritoCount;
+                        if (data.carritoCount > 0) {
+                            carritoCountSpan.classList.remove('hidden');
+                        } else {
+                            carritoCountSpan.classList.add('hidden');
+                        }
+                    }
+                    showMessageModal('Cantidad actualizada.', true);
+                } else {
+                    const errorData = await response.json();
+                    showMessageModal(errorData.message || 'Error al actualizar cantidad.', false);
+                }
+            } catch (error) {
+                console.error('Error al actualizar cantidad:', error);
+                showMessageModal('Error de conexión. Inténtalo de nuevo.', false);
+            }
+        }
+
+        async function removeItem(button) {
+            const itemId = button.dataset.itemId;
+            try {
+                const response = await fetch('/carrito/eliminar/' + itemId, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('item-' + itemId).remove();
+                    document.getElementById('subtotal').innerText = `S/ ${data.newSubtotal.toFixed(2)}`;
+                    document.getElementById('descuento').innerText = `S/ ${data.newDiscount.toFixed(2)}`;
+                    document.getElementById('total-pagar').innerText = `S/ ${data.newTotal.toFixed(2)}`;
+                    const carritoCountSpan = document.querySelector('nav .fa-shopping-cart + span');
+                    if (carritoCountSpan) {
+                        carritoCountSpan.innerText = data.carritoCount;
+                        if (data.carritoCount > 0) {
+                            carritoCountSpan.classList.remove('hidden');
+                        } else {
+                            carritoCountSpan.classList.add('hidden');
+                        }
+                    }
+                    if (data.carritoCount === 0) {
+                        window.location.reload();
+                    }
+                    showMessageModal('Producto eliminado del carrito.', true);
+                } else {
+                    const errorData = await response.json();
+                    showMessageModal(errorData.message || 'Error al eliminar producto.', false);
+                }
+            } catch (error) {
+                console.error('Error al eliminar producto:', error);
+                showMessageModal('Error de conexión. Inténtalo de nuevo.', false);
+            }
+        }
+
+        function proceedToCheckout() {
+            const selectedMethod = document.querySelector('input[name="metodoPago"]:checked').value;
+            window.location.href = '/pago?metodo=' + selectedMethod;
+        }
+    </script>
+</body>
+</html>
