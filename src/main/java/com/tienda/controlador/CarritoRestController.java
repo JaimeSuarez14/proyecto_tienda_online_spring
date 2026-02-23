@@ -3,6 +3,7 @@ package com.tienda.controlador;
 
 import com.tienda.modelo.Producto;
 import com.tienda.modelo.Usuario;
+import com.tienda.modelo.Carrito;
 import com.tienda.servicio.CarritoService;
 import com.tienda.servicio.ProductoService;
 import jakarta.servlet.http.HttpSession;
@@ -126,6 +127,64 @@ public class CarritoRestController {
         }
     }
 
-    
+    /**
+     * Endpoint para actualizar la cantidad de un producto en el carrito.
+     * @param request El objeto UpdateCartItemRequest con el ID del ítem del carrito y la nueva cantidad.
+     * @param session La sesión HTTP para obtener el usuario autenticado.
+     * @return Una respuesta JSON con los totales actualizados del carrito.
+     */
+    @PostMapping("/actualizarCantidad")
+    public ResponseEntity<Map<String, Object>> actualizarCantidadEnCarrito(@RequestBody UpdateCartItemRequest request, HttpSession session) {
+        Map<String, Object> response = new HashMap<>();
+        Usuario usuarioAutenticado = (Usuario) session.getAttribute("usuarioAutenticado");
+
+        if (usuarioAutenticado == null) {
+            response.put("success", false);
+            response.put("message", "Usuario no autenticado.");
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        }
+
+        try {
+            Optional<Carrito> updatedItem = carritoService.actualizarCantidadEnCarrito(request.getItemId(), request.getCantidad());
+
+            if (updatedItem.isPresent()) {
+                // Recalcular totales del carrito
+                List<Carrito> carritoItems = carritoService.findByUsuario(usuarioAutenticado);
+                BigDecimal subtotal = BigDecimal.ZERO;
+                BigDecimal totalDescuento = BigDecimal.ZERO;
+
+                for (Carrito item : carritoItems) {
+                    BigDecimal precioUnitario = item.getProducto().getPrecio();
+                    BigDecimal descuentoUnitario = item.getProducto().getDescuento();
+                    BigDecimal precioConDescuento = precioUnitario.multiply(BigDecimal.ONE.subtract(descuentoUnitario.divide(BigDecimal.valueOf(100))));
+
+                    subtotal = subtotal.add(precioUnitario.multiply(BigDecimal.valueOf(item.getCantidad())));
+                    totalDescuento = totalDescuento.add((precioUnitario.subtract(precioConDescuento)).multiply(BigDecimal.valueOf(item.getCantidad())));
+                }
+                BigDecimal totalConDescuento = subtotal.subtract(totalDescuento);
+                int carritoCount = carritoService.countItemsInCarrito(usuarioAutenticado);
+
+
+                response.put("success", true);
+                response.put("message", "Cantidad actualizada exitosamente.");
+                response.put("newQuantity", updatedItem.get().getCantidad());
+                response.put("newSubtotal", subtotal);
+                response.put("newDiscount", totalDescuento);
+                response.put("newTotal", totalConDescuento);
+                response.put("carritoCount", carritoCount);
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            } else {
+                response.put("success", false);
+                response.put("message", "Ítem del carrito no encontrado o eliminado.");
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            System.err.println("Error al actualizar cantidad en el carrito: " + e.getMessage());
+            response.put("success", false);
+            response.put("message", "Error interno al actualizar cantidad en el carrito.");
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     
 }
