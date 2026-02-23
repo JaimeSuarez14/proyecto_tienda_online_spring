@@ -4,8 +4,10 @@ package com.tienda.controlador;
 import com.tienda.modelo.Producto;
 import com.tienda.modelo.Usuario;
 import com.tienda.modelo.Carrito;
+import com.tienda.modelo.Cupon;
 import com.tienda.servicio.CarritoService;
 import com.tienda.servicio.ProductoService;
+import com.tienda.servicio.CuponService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -69,6 +71,20 @@ class UpdateCartItemRequest {
     }
 }
 
+// Clase DTO para recibir los datos del request de aplicar cupón
+class AplicarCuponRequest {
+    private String codigoCupon;
+
+    // Getters y Setters
+    public String getCodigoCupon() {
+        return codigoCupon;
+    }
+
+    public void setCodigoCupon(String codigoCupon) {
+        this.codigoCupon = codigoCupon;
+    }
+}
+
 @RestController // Indica que es un controlador REST que devuelve datos directamente (JSON, XML)
 @RequestMapping("/carrito")
 public class CarritoRestController {
@@ -78,6 +94,9 @@ public class CarritoRestController {
 
     @Autowired
     private ProductoService productoService;
+
+    @Autowired
+    private CuponService cuponService;
 
     /**
      * Endpoint para agregar un producto al carrito del usuario autenticado.
@@ -289,6 +308,140 @@ public class CarritoRestController {
             System.err.println("Error al vaciar el carrito: " + e.getMessage());
             response.put("success", false);
             response.put("message", "Error interno al vaciar el carrito.");
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Endpoint para aplicar un código de descuento (cupón) al carrito.
+     * @param request El objeto AplicarCuponRequest con el código del cupón.
+     * @param session La sesión HTTP para obtener el usuario autenticado.
+     * @return Una respuesta JSON con los totales actualizados del carrito.
+     */
+    @PostMapping("/aplicarCupon")
+    public ResponseEntity<Map<String, Object>> aplicarCupon(@RequestBody AplicarCuponRequest request, HttpSession session) {
+        Map<String, Object> response = new HashMap<>();
+        Usuario usuarioAutenticado = (Usuario) session.getAttribute("usuarioAutenticado");
+        
+        // Si no encuentra con ese nombre, intenta con el otro
+        if (usuarioAutenticado == null) {
+            usuarioAutenticado = (Usuario) session.getAttribute("usuarioLogueado");
+        }
+
+        if (usuarioAutenticado == null) {
+            response.put("success", false);
+            response.put("message", "Usuario no autenticado.");
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        }
+
+        try {
+            // Buscar el cupón por código
+            Optional<Cupon> cuponOptional = cuponService.buscarCuponPorCodigo(request.getCodigoCupon());
+            
+            if (cuponOptional.isEmpty()) {
+                response.put("success", false);
+                response.put("message", "Código de cupón no válido.");
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            }
+
+            Cupon cupon = cuponOptional.get();
+            
+            // Validar que el cupón sea válido
+            if (!cuponService.esValido(cupon)) {
+                response.put("success", false);
+                response.put("message", "El cupón ha expirado o no está activo.");
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            }
+
+            // Aplicar el cupón al carrito
+            carritoService.aplicarCupon(usuarioAutenticado, cupon);
+
+            // Recalcular totales del carrito con descuento del cupón
+            List<Carrito> carritoItems = carritoService.findByUsuario(usuarioAutenticado);
+            BigDecimal subtotal = BigDecimal.ZERO;
+            BigDecimal totalDescuentoProductos = BigDecimal.ZERO;
+
+            for (Carrito item : carritoItems) {
+                BigDecimal precioUnitario = item.getProducto().getPrecio();
+                BigDecimal descuentoUnitario = item.getProducto().getDescuento();
+                BigDecimal precioConDescuento = precioUnitario.multiply(BigDecimal.ONE.subtract(descuentoUnitario.divide(BigDecimal.valueOf(100))));
+
+                subtotal = subtotal.add(precioUnitario.multiply(BigDecimal.valueOf(item.getCantidad())));
+                totalDescuentoProductos = totalDescuentoProductos.add((precioUnitario.subtract(precioConDescuento)).multiply(BigDecimal.valueOf(item.getCantidad())));
+            }
+            
+            BigDecimal totalConDescuentoProductos = subtotal.subtract(totalDescuentoProductos);
+            
+            // Aplicar descuento del cupón al total
+            BigDecimal descuentoCupon = totalConDescuentoProductos.multiply(BigDecimal.valueOf(cupon.getPorcentajeDescuento())).divide(BigDecimal.valueOf(100));
+            BigDecimal totalFinal = totalConDescuentoProductos.subtract(descuentoCupon);
+
+            response.put("success", true);
+            response.put("message", "Cupón aplicado exitosamente. Descuento: " + cupon.getPorcentajeDescuento() + "%");
+            response.put("newSubtotal", subtotal);
+            response.put("newDiscount", totalDescuentoProductos.add(descuentoCupon));
+            response.put("newTotal", totalFinal);
+            response.put("cuponDescuento", descuentoCupon);
+            response.put("porcentajeCupon", cupon.getPorcentajeDescuento());
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            System.err.println("Error al aplicar cupón: " + e.getMessage());
+            response.put("success", false);
+            response.put("message", "Error interno al aplicar el cupón.");
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * Endpoint para remover un cupón del carrito.
+     * @param session La sesión HTTP para obtener el usuario autenticado.
+     * @return Una respuesta JSON con los totales actualizados del carrito.
+     */
+    @PostMapping("/removerCupon")
+    public ResponseEntity<Map<String, Object>> removerCupon(HttpSession session) {
+        Map<String, Object> response = new HashMap<>();
+        Usuario usuarioAutenticado = (Usuario) session.getAttribute("usuarioAutenticado");
+        
+        // Si no encuentra con ese nombre, intenta con el otro
+        if (usuarioAutenticado == null) {
+            usuarioAutenticado = (Usuario) session.getAttribute("usuarioLogueado");
+        }
+
+        if (usuarioAutenticado == null) {
+            response.put("success", false);
+            response.put("message", "Usuario no autenticado.");
+            return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        }
+
+        try {
+            // Remover el cupón del carrito
+            carritoService.removerCupon(usuarioAutenticado);
+
+            // Recalcular totales del carrito sin cupón
+            List<Carrito> carritoItems = carritoService.findByUsuario(usuarioAutenticado);
+            BigDecimal subtotal = BigDecimal.ZERO;
+            BigDecimal totalDescuento = BigDecimal.ZERO;
+
+            for (Carrito item : carritoItems) {
+                BigDecimal precioUnitario = item.getProducto().getPrecio();
+                BigDecimal descuentoUnitario = item.getProducto().getDescuento();
+                BigDecimal precioConDescuento = precioUnitario.multiply(BigDecimal.ONE.subtract(descuentoUnitario.divide(BigDecimal.valueOf(100))));
+
+                subtotal = subtotal.add(precioUnitario.multiply(BigDecimal.valueOf(item.getCantidad())));
+                totalDescuento = totalDescuento.add((precioUnitario.subtract(precioConDescuento)).multiply(BigDecimal.valueOf(item.getCantidad())));
+            }
+            BigDecimal totalConDescuento = subtotal.subtract(totalDescuento);
+
+            response.put("success", true);
+            response.put("message", "Cupón removido exitosamente.");
+            response.put("newSubtotal", subtotal);
+            response.put("newDiscount", totalDescuento);
+            response.put("newTotal", totalConDescuento);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            System.err.println("Error al remover cupón: " + e.getMessage());
+            response.put("success", false);
+            response.put("message", "Error interno al remover el cupón.");
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

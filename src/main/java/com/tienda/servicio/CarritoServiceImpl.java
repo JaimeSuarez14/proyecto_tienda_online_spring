@@ -2,6 +2,7 @@
 package com.tienda.servicio;
 
 import com.tienda.modelo.Carrito;
+import com.tienda.modelo.Cupon;
 import com.tienda.modelo.Producto;
 import com.tienda.modelo.Usuario;
 import com.tienda.repositorio.CarritoRepository;
@@ -111,5 +112,32 @@ public class CarritoServiceImpl implements CarritoService {
             }
         }
         return Optional.empty();
+    }
+
+    /**
+     * Aplica un cupón al carrito de un usuario.
+     * @param usuario El usuario al que se le aplicará el cupón.
+     * @param cupon El cupón a aplicar.
+     */
+    @Override
+    public void aplicarCupon(Usuario usuario, Cupon cupon) {
+        List<Carrito> items = carritoRepository.findByUsuario(usuario);
+        for (Carrito item : items) {
+            item.setCupon(cupon);
+        }
+        carritoRepository.saveAll(items);
+    }
+
+    /**
+     * Remueve el cupón del carrito de un usuario.
+     * @param usuario El usuario al que se le removerá el cupón.
+     */
+    @Override
+    public void removerCupon(Usuario usuario) {
+        List<Carrito> items = carritoRepository.findByUsuario(usuario);
+        for (Carrito item : items) {
+            item.setCupon(null);
+        }
+        carritoRepository.saveAll(items);
     }
 }

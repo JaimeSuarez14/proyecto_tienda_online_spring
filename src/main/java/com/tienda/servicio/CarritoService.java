@@ -1,6 +1,7 @@
 package com.tienda.servicio;
 
 import com.tienda.modelo.Carrito;
+import com.tienda.modelo.Cupon;
 import com.tienda.modelo.Producto;
 import com.tienda.modelo.Usuario;
 import java.util.List;
@@ -51,4 +52,17 @@ public interface CarritoService {
      * @param usuario El usuario cuyo carrito se limpiará.
      */
     void limpiarCarrito(Usuario usuario);
+
+    /**
+     * Aplica un cupón al carrito de un usuario.
+     * @param usuario El usuario al que se le aplicará el cupón.
+     * @param cupon El cupón a aplicar.
+     */
+    void aplicarCupon(Usuario usuario, Cupon cupon);
+
+    /**
+     * Remueve el cupón del carrito de un usuario.
+     * @param usuario El usuario al que se le removerá el cupón.
+     */
+    void removerCupon(Usuario usuario);
 }

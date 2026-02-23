@@ -19,6 +19,10 @@ public class Carrito {
     @Column(nullable = false)
     private int cantidad;
 
+    @ManyToOne
+    @JoinColumn(name = "cupon_id", nullable = true)
+    private Cupon cupon;
+
     // Constructores
     public Carrito() {
     }
@@ -60,6 +64,14 @@ public class Carrito {
 
     public void setCantidad(int cantidad) {
         this.cantidad = cantidad;
+    }
+
+    public Cupon getCupon() {
+        return cupon;
+    }
+
+    public void setCupon(Cupon cupon) {
+        this.cupon = cupon;
     }
 
     @Override

@@ -25,6 +25,10 @@ public class DetalleVenta {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal precioUnitario;
 
+    @ManyToOne
+    @JoinColumn(name = "cupon_id", nullable = true)
+    private Cupon cupon;
+
     // Constructores
     public DetalleVenta() {
     }
@@ -75,6 +79,14 @@ public class DetalleVenta {
 
     public void setPrecioUnitario(BigDecimal precioUnitario) {
         this.precioUnitario = precioUnitario;
+    }
+
+    public Cupon getCupon() {
+        return cupon;
+    }
+
+    public void setCupon(Cupon cupon) {
+        this.cupon = cupon;
     }
 
     @Override
