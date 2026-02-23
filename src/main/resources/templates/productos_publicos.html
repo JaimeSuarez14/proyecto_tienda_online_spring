@@ -157,11 +157,11 @@
                         </p>
 
                         <div class="flex flex-col space-y-3">
-                            <button
-                                class="bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded-xl cursor-not-allowed opacity-70"
+                            <a href="/login" 
+                                class="bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded-xl  opacity-70"
                                 disabled>
                                 Agregar al Carrito
-                            </button>
+                            </a>
                             <button onclick="showProductDetailsModal(this)" th:data-id="${producto.id}"
                                 th:data-nombre="${producto.nombre}" th:data-descripcion="${producto.descripcion}"
                                 th:data-categoria="${producto.categoria.descripcion}"

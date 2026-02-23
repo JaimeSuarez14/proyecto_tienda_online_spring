@@ -17,6 +17,64 @@ public class CarritoServiceImpl implements CarritoService {
     @Autowired
     private CarritoRepository carritoRepository;
 
+    /**
+     * Agrega un producto al carrito de un usuario. Si el producto ya existe en el carrito,
+     * aumenta la cantidad.
+     * @param usuario El usuario al que se le agregará el producto.
+     * @param producto El producto a agregar.
+     * @param cantidad La cantidad a agregar.
+     * @return El objeto Carrito actualizado o recién creado.
+     */
+    @Override
+    public Carrito agregarProductoAlCarrito(Usuario usuario, Producto producto, int cantidad) {
+        // Buscar si el producto ya está en el carrito del usuario
+        Optional<Carrito> existingItem = carritoRepository.findByUsuarioAndProducto(usuario, producto);
+
+        Carrito carritoItem;
+        if (existingItem.isPresent()) {
+            // Si ya existe, actualiza la cantidad
+            carritoItem = existingItem.get();
+            carritoItem.setCantidad(carritoItem.getCantidad() + cantidad);
+        } else {
+            // Si no existe, crea un nuevo ítem en el carrito
+            carritoItem = new Carrito();
+            carritoItem.setUsuario(usuario);
+            carritoItem.setProducto(producto);
+            carritoItem.setCantidad(cantidad);
+        }
+        return carritoRepository.save(carritoItem);
+    }
+
+    /**
+     * Obtiene todos los ítems del carrito de un usuario.
+     * @param usuario El usuario cuyo carrito se desea obtener.
+     * @return Una lista de ítems del carrito.
+     */
+    @Override
+    public List<Carrito> findByUsuario(Usuario usuario) {
+        return carritoRepository.findByUsuario(usuario);
+    }
+
+    /**
+     * Cuenta la cantidad total de ítems en el carrito de un usuario.
+     * @param usuario El usuario cuyo carrito se desea contar.
+     * @return La cantidad total de ítems.
+     */
+    @Override
+    public int countItemsInCarrito(Usuario usuario) {
+        return carritoRepository.findByUsuario(usuario).stream()
+                .mapToInt(Carrito::getCantidad)
+                .sum();
+    }
+
+    
+
+    
+    /**
+     * Limpia completamente el carrito de un usuario.
+     * @param usuario El usuario cuyo carrito se limpiará.
+     */
+    @Override
     public void limpiarCarrito(Usuario usuario) {
         System.out.println("Limpiando carrito para usuario: " + usuario.getCorreo());
         List<Carrito> items = carritoRepository.findByUsuario(usuario);
@@ -24,32 +82,24 @@ public class CarritoServiceImpl implements CarritoService {
     }
 
     @Override
-    public Carrito agregarProductoAlCarrito(Usuario usuario, Producto producto, int cantidad) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'agregarProductoAlCarrito'");
-    }
-
-    @Override
-    public List<Carrito> findByUsuario(Usuario usuario) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'findByUsuario'");
-    }
-
-    @Override
-    public int countItemsInCarrito(Usuario usuario) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'countItemsInCarrito'");
-    }
-
-    @Override
     public void eliminarItemDelCarrito(Long carritoId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'eliminarItemDelCarrito'");
+        carritoRepository.deleteById(carritoId);
     }
 
     @Override
     public Optional<Carrito> actualizarCantidadEnCarrito(Long carritoId, int cantidad) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'actualizarCantidadEnCarrito'");
+        Optional<Carrito> carritoOptional = carritoRepository.findById(carritoId);
+        if (carritoOptional.isPresent()) {
+            Carrito carrito = carritoOptional.get();
+            if (cantidad > 0) {
+                carrito.setCantidad(cantidad);
+                return Optional.of(carritoRepository.save(carrito));
+            } else {
+                // Si la cantidad es 0 o negativa, eliminar el item
+                carritoRepository.deleteById(carritoId);
+                return Optional.empty();
+            }
+        }
+        return Optional.empty();
     }
 }

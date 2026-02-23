@@ -63,6 +63,8 @@
         // Función para mostrar el modal de detalles del producto
         function showProductDetailsModal(button) {
             const modal = document.getElementById('productDetailsModal');
+            // Guardar el ID del producto en el modal para usarlo en addToCart
+            modal.dataset.productoId = button.dataset.id;
             document.getElementById('modal-nombre').innerText = button.dataset.nombre;
             document.getElementById('modal-descripcion').innerText = button.dataset.descripcion;
             document.getElementById('modal-categoria').innerText = button.dataset.categoria;
@@ -101,6 +103,17 @@
                 stockElement.innerText += ' (Agotado)';
             }
 
+            // Mostrar/ocultar botones basándose en el stock
+            const addToCartBtn = document.getElementById('modal-add-to-cart-btn');
+            const agotadoBtn = document.getElementById('modal-agotado-btn');
+            if (stock > 0) {
+                addToCartBtn.classList.remove('hidden');
+                agotadoBtn.classList.add('hidden');
+            } else {
+                addToCartBtn.classList.add('hidden');
+                agotadoBtn.classList.remove('hidden');
+            }
+
             const imagenUrl = button.dataset.imagenurl;
             document.getElementById('modal-imagen').src = imagenUrl && imagenUrl !== 'null' ? imagenUrl : 'https://placehold.co/400x300/E0E0E0/6A11CB?text=Producto';
 
@@ -110,8 +123,11 @@
 
         // Función para ocultar el modal
         function hideProductDetailsModal() {
-            document.getElementById('productDetailsModal').classList.remove('visible');
-            document.getElementById('productDetailsModal').classList.add('hidden');
+            const modal = document.getElementById('productDetailsModal');
+            if (modal) {
+                modal.classList.remove('visible');
+                modal.classList.add('hidden');
+            }
         }
 
         // Cierra el modal si se hace clic fuera de él
@@ -124,6 +140,42 @@
         }
 
         function addToCart(button) {
+            const modal = document.getElementById('productDetailsModal');
+            const productoId = modal.dataset.productoId;
+            fetch('/carrito/agregar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    productoId: productoId,
+                    cantidad: 1
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Actualizar el contador del carrito
+                    const carritoCount = document.querySelector('.numeroItemsCart');
+                    if (carritoCount) {
+                        console.log(data);
+                        
+                        carritoCount.textContent = data.carritoCount;
+                    }
+                    mostrarNotificacion('Producto agregado al carrito');
+                    // Cerrar modal si está abierto
+                    hideProductDetailsModal();
+                } else {
+                    mostrarNotificacion(data.message || 'Error al agregar al carrito', true);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                mostrarNotificacion('Error al agregar al carrito', true);
+            });
+        }
+
+        function addToCartFromCard(button) {
             const productoId = button.getAttribute('data-producto-id');
             fetch('/carrito/agregar', {
                 method: 'POST',
@@ -139,13 +191,11 @@
             .then(data => {
                 if (data.success) {
                     // Actualizar el contador del carrito
-                    const carritoCount = document.querySelector('.bi-cart').nextElementSibling;
+                    const carritoCount = document.querySelector('.numeroItemsCart');
                     if (carritoCount) {
                         carritoCount.textContent = data.carritoCount;
                     }
                     mostrarNotificacion('Producto agregado al carrito');
-                    // Cerrar modal si está abierto
-                    hideProductDetailsModal();
                 } else {
                     mostrarNotificacion(data.message || 'Error al agregar al carrito', true);
                 }
@@ -210,9 +260,8 @@
             <a href="/productos" class="text-orange-600 font-medium border-b-2 border-orange-600"><i class="bi bi-box"></i> Productos</a>
             <a href="/carrito" class="text-gray-700 hover:text-orange-600 font-medium relative">
                 <i class="bi bi-cart"></i>
-                <span th:if="${carritoCount > 0}" 
-                      class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center"
-                      th:text="${carritoCount}">0</span>
+                <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center numeroItemsCart"
+                      th:text="${carritoCount > 0 ? carritoCount : '0'}">0</span>
             </a>
             <a href="/logout" class="text-red-600 hover:text-red-800 font-medium"><i class="bi bi-box-arrow-right"></i> Cerrar Sesión</a>
         </div>
@@ -295,7 +344,7 @@
                         <span th:if="${producto.stock == 0}" class="ml-1">(Agotado)</span>
                     </p>
                     <div class="mt-2 flex flex-col gap-2">
-                        <button th:if="${producto.stock > 0}" onclick="addToCart(this)"
+                        <button th:if="${producto.stock > 0}" onclick="addToCartFromCard(this)"
                                 th:data-producto-id="${producto.id}"
                                 class="btn-main w-full py-2 px-4 rounded-xl flex items-center justify-center gap-2">
                             <i class="bi bi-cart-plus"></i> Agregar al Carrito
@@ -382,13 +431,13 @@
                             </div>
                             <div class="flex justify-between align-center">
                                 <p id="modal-stock" class="text-base font-semibold text-gray-700"></p>
-                                <button th:if="${producto.stock > 0}"
+                                <button id="modal-add-to-cart-btn"
                                     onclick="addToCart(this)"
                                     class="bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded-xl transition duration-300 ease-in-out transform hover:scale-105">
                                     Agregar al Carrito
                                 </button>
-                                <button th:if="${producto.stock == 0}"
-                                    class="bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded-xl cursor-not-allowed opacity-70"
+                                <button id="modal-agotado-btn"
+                                    class="bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded-xl cursor-not-allowed opacity-70 hidden"
                                     disabled>
                                     Agotado
                                 </button>
