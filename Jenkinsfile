@@ -3,22 +3,12 @@ pipeline {
     
     tools {
         maven 'Maven3.9.12'
-        jdk 'JDK17'
-    }
-    
-    environment {
-        SONAR_HOST_URL = 'http://localhost:9000'
-        SONAR_PROJECT_KEY = 'proyecto_tienda_online_spring'
-        SONAR_PROJECT_NAME = 'Tienda Online Spring'
-        SONAR_TOKEN = credentials('sonarqube-token')
     }
     
     stages {
         stage('Checkout') {
             steps {
-                echo '========================================'
-                echo 'OBTENIENDO CODIGO DESDE GITHUB'
-                echo '========================================'
+                echo 'Obteniendo código desde GitHub...'
                 checkout scm
             }
         }
@@ -27,11 +17,10 @@ pipeline {
             steps {
                 script {
                     echo '========================================'
-                    echo 'COMPILANDO PROYECTO'
+                    echo 'INICIANDO COMPILACIÓN AUTOMÁTICA'
                     echo '========================================'
                     
                     sh 'java -version'
-                    sh 'javac -version'
                     sh 'mvn -version'
                     
                     sh 'mvn clean compile -B -ntp'
@@ -39,10 +28,10 @@ pipeline {
             }
             post {
                 success {
-                    echo 'COMPILACION EXITOSA'
+                    echo 'COMPILACIÓN EXITOSA'
                 }
                 failure {
-                    echo 'ERROR DE COMPILACION'
+                    echo 'ERROR DE COMPILACIÓN'
                 }
             }
         }
@@ -51,17 +40,19 @@ pipeline {
             steps {
                 script {
                     echo '========================================'
-                    echo 'EJECUTANDO PRUEBAS'
+                    echo 'EJECUTANDO PRUEBAS AUTOMÁTICAS'
                     echo '========================================'
                     
+                    // Verificar si existen pruebas
                     def hayPruebas = sh(
-                        script: 'find src/test -name "*.java" 2>/dev/null | wc -l',
+                        script: 'find src/test -name "*.java" | wc -l',
                         returnStdout: true
                     ).trim()
                     
-                    if (hayPruebas && hayPruebas.toInteger() > 0) {
+                    if (hayPruebas.toInteger() > 0) {
                         echo "Se encontraron ${hayPruebas} archivos de prueba"
                         
+                        // Ejecutar pruebas y capturar resultado
                         def resultado = sh(
                             script: 'mvn test -B -ntp',
                             returnStatus: true
@@ -71,118 +62,49 @@ pipeline {
                             echo 'PRUEBAS EXITOSAS'
                         } else {
                             echo 'ALGUNAS PRUEBAS FALLARON'
+                            // Marcar como inestable pero continuar
                             currentBuild.result = 'UNSTABLE'
                         }
                     } else {
                         echo 'NO SE ENCONTRARON PRUEBAS'
+                        echo 'Considera agregar pruebas unitarias al proyecto'
                     }
                 }
             }
-            post {
-                always {
-                    junit allowEmptyResults: true, 
-                          testResults: 'target/surefire-reports/*.xml'
+    post {
+        always {
+            // Publicar reportes si existen
+            junit allowEmptyResults: true, 
+                  testResults: 'target/surefire-reports/*.xml'
+            
+            // Mostrar resumen
+            script {
+                if (fileExists('target/surefire-reports')) {
+                    echo ' Reportes de pruebas publicados'
+                } else {
+                    echo 'No hay reportes de pruebas para publicar'
                 }
             }
         }
-        
-        stage('SonarQube Analysis') {
-            steps {
-                script {
-                    echo '========================================'
-                    echo 'ANALIZANDO CALIDAD CON SONARQUBE'
-                    echo '========================================'
-                    
-                    def sonarStatus = sh(
-                        script: "curl -s -o /dev/null -w '%{http_code}' ${SONAR_HOST_URL}",
-                        returnStdout: true
-                    ).trim()
-                    
-                    if (sonarStatus == '200') {
-                        echo "SonarQube accesible en ${SONAR_HOST_URL}"
-                        
-                        sh """
-                            mvn sonar:sonar \
-                                -Dsonar.host.url=${SONAR_HOST_URL} \
-                                -Dsonar.token=${SONAR_TOKEN} \
-                                -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
-                                -Dsonar.projectName='${SONAR_PROJECT_NAME}' \
-                                -Dsonar.projectVersion=1.0.${BUILD_NUMBER} \
-                                -Dsonar.sources=src/main \
-                                -Dsonar.tests=src/test \
-                                -Dsonar.java.binaries=target/classes \
-                                -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
-                                -Dsonar.java.source=17 \
-                                -Dsonar.java.target=17
-                        """
-                        
-                        echo "Analisis completado"
-                        echo "Ver resultados en: ${SONAR_HOST_URL}/dashboard?id=${SONAR_PROJECT_KEY}"
-                    } else {
-                        echo "SonarQube no esta accesible (HTTP ${sonarStatus})"
-                        echo "Verifica que SonarQube este corriendo en ${SONAR_HOST_URL}"
-                    }
-                }
-            }
-            post {
-                failure {
-                    echo 'ERROR EN ANALISIS DE SONARQUBE'
-                    echo 'Verifica:'
-                    echo '  - Que SonarQube este corriendo'
-                    echo '  - Que el token sea correcto'
-                    echo '  - La conectividad de red'
-                }
-            }
-        }
+    }
+}
         
         stage('Package') {
             steps {
-                script {
-                    echo '========================================'
-                    echo 'EMPACANDO APLICACION'
-                    echo '========================================'
-                    
-                    sh 'mvn package -DskipTests -B -ntp'
-                    
-                    def jarFile = sh(
-                        script: 'ls target/*.jar | head -1',
-                        returnStdout: true
-                    ).trim()
-                    
-                    echo "JAR generado: ${jarFile}"
-                }
-            }
-            post {
-                success {
-                    archiveArtifacts artifacts: 'target/*.jar', 
-                                   fingerprint: true,
-                                   excludes: 'target/*-sources.jar'
-                }
+                sh 'mvn package -DskipTests -B -ntp'
             }
         }
     }
     
     post {
         always {
-            echo '========================================'
-            echo 'LIMPIANDO WORKSPACE'
-            echo '========================================'
             cleanWs()
         }
         success {
-            echo '========================================'
-            echo 'PIPELINE COMPLETADO CON EXITO'
-            echo '========================================'
+            echo 'Pipeline completado con éxito'
         }
         failure {
-            echo '========================================'
-            echo 'PIPELINE FALLO'
-            echo '========================================'
-        }
-        unstable {
-            echo '========================================'
-            echo 'PIPELINE COMPLETADO CON INESTABILIDADES'
-            echo '========================================'
+            echo 'Pipeline falló'
         }
     }
 }
