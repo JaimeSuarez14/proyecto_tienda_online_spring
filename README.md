@@ -630,3 +630,4 @@ Para preguntas o soporte, contacta al equipo de desarrollo o abre un issue en el
 **Última actualización:** Enero 2026
 
 ¡Gracias por usar PlazaChina! 🙏
+##Integracion continua
