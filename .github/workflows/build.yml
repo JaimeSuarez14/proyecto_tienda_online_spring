@@ -33,6 +33,13 @@ jobs:
             echo "❌ Error: No se creó el directorio target"
             exit 1
           fi
+    - name: Empaquetar con Maven
+      run: ./mvnw clean package
+    - name: Subir artefacto
+      uses: actions/upload-artifact@v4
+      with:
+        name: app-build
+        path: target/*.jar
     # PUNTO 4: Análisis de calidad con SonarCloud
     - name: Analizar con SonarCloud
       env:
