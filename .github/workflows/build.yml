@@ -34,7 +34,7 @@ jobs:
             exit 1
           fi
     - name: Empaquetar con Maven
-      run: ./mvnw clean package
+      run: mvn clean package
     - name: Subir artefacto
       uses: actions/upload-artifact@v4
       with:
