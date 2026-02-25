@@ -22,7 +22,7 @@ jobs:
         cache: maven
 
     - name: Compilar con Maven
-      run: mvnf clean compile #run: mvn -B package --file pom.xml
+      run: mvn clean compile #run: mvn -B package --file pom.xml
     # Paso adicional: Verificar que la compilación fue exitosa
     - name: Verificar compilación
       run: |
