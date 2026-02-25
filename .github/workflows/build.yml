@@ -22,7 +22,7 @@ jobs:
         cache: maven
 
     - name: Compilar con Maven
-      run: mvn clean compile #run: mvn -B package --file pom.xml
+      run: mvnf clean compile #run: mvn -B package --file pom.xml
     # Paso adicional: Verificar que la compilación fue exitosa
     - name: Verificar compilación
       run: |
@@ -34,7 +34,7 @@ jobs:
             exit 1
           fi
     - name: Empaquetar con Maven
-      run: ./mvnw clean package
+      run: mvn clean package
       continue-on-error: true
     - name: Subir artefacto
       uses: actions/upload-artifact@v4
