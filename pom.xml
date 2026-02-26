@@ -21,6 +21,10 @@
         <java.version>21</java.version>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
+         <!-- Propiedades para SonarCloud -->
+<sonar.organization>desarrollodigitalperu</sonar.organization>
+<sonar.host.url>https://sonarcloud.io</sonar.host.url>
+<sonar.projectKey>DesarrolloDigitalPeru_proyecto_tienda_online_spring</sonar.projectKey>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
@@ -168,6 +172,11 @@
                     <useFile>false</useFile>
                 </configuration>
             </plugin>
+         <plugin>
+           <groupId>org.sonarsource.scanner.maven</groupId>
+           <artifactId>sonar-maven-plugin</artifactId>
+           <version>4.0.0.4121</version>
+         </plugin>
         </plugins>
     </build>
     

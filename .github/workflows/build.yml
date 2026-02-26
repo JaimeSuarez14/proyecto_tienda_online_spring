@@ -1,0 +1,74 @@
+name: Java CI with Maven
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout del código
+      uses: actions/checkout@v4
+
+    - name: Configurar JDK 21 # Cambia a 11 o 21 si usas otra versión
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: maven
+
+    - name: Compilar con Maven
+      run: mvn clean compile #run: mvn -B package --file pom.xml
+    # Paso adicional: Verificar que la compilación fue exitosa
+    - name: Verificar compilación
+      run: |
+          if [ -d "target" ]; then
+            echo "✅ Compilación exitosa - Directorio target creado"
+            ls -la target/
+          else
+            echo "❌ Error: No se creó el directorio target"
+            exit 1
+          fi
+    - name: Empaquetar con Maven
+      run: mvn clean package
+      continue-on-error: true
+    - name: Subir artefacto
+      uses: actions/upload-artifact@v4
+      with:
+        name: app-build
+        path: target/*.jar
+      continue-on-error: true
+    # PUNTO 4: Análisis de calidad con SonarCloud
+    - name: Analizar con SonarCloud
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      run: |
+          echo "=== ANALIZANDO CON SONARCLOUD ==="
+          echo "Repositorio: proyecto_tienda_online_spring"
+          echo "Evento: ${{ github.event_name }}"
+          
+          # Verificar que el token existe
+          if [ -z "$SONAR_TOKEN" ]; then
+            echo "ERROR: SONAR_TOKEN no está configurado"
+            echo "Ve a Settings > Secrets and variables > Actions y crea SONAR_TOKEN"
+            exit 1
+          fi
+          mvn verify sonar:sonar \
+            -Dsonar.projectKey=DesarrolloDigitalPeru_proyecto_tienda_online_spring \
+            -Dsonar.organization=desarrollodigitalperu \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+    - name: Empaquetar aplicación
+      run: mvn package -DskipTests
+      
+    - name: Subir artefacto (JAR generado)
+      uses: actions/upload-artifact@v4
+      with:
+          name: proyecto-tienda-jar
+          path: target/*.jar
+          retention-days: 30
