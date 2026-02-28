@@ -1,0 +1,44 @@
+# .dockerignore
+# Archivos de compilación
+target/
+*.class
+*.log
+*.jar
+!target/*.jar  # Excepción para el JAR final
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.settings/
+.classpath
+.project
+.factorypath
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Docker
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# Documentación
+README.md
+*.md
+docs/
+
+# Pruebas y logs
+test-logs/
+logs/
+*.log
+
+# Archivos de entorno (nunca incluir .env en la imagen)
+.env
+.env.*
+!.env.example
+
+# Scripts
+scripts/
