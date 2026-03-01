@@ -21,6 +21,12 @@ jobs:
         distribution: 'temurin'
         cache: maven
 
+    - name: Instalar Docker Compose
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y docker-compose
+        docker-compose --version
+
     - name: Compilar con Maven
       run: mvn clean compile
 
@@ -137,6 +143,35 @@ jobs:
           
           echo "========================================="
 
+    # Validar variables de entorno
+    - name: Validar variables de entorno
+      run: |
+          echo "========================================="
+          echo "PUNTO 3: VALIDAR VARIABLES DE ENTORNO"
+          echo "========================================="
+          
+          # Verificar que .env.example existe
+          if [ -f ".env.example" ]; then
+            echo "✅ .env.example encontrado"
+          else
+            echo "❌ .env.example no encontrado"
+            exit 1
+          fi
+          
+          # Mostrar configuración esperada
+          echo "Configuración esperada:"
+          echo "  Base de datos: tiendaplazachina"
+          echo "  Usuario: root"
+          echo "  Password: (vacío)"
+          
+          # Verificar que el archivo contiene la configuración correcta
+          if grep -q "tiendaplazachina" .env.example; then
+            echo "✅ Nombre BD correcto en .env.example"
+          else
+            echo "❌ Nombre BD incorrecto en .env.example"
+          fi
+          
+          echo "========================================="          
     - name: Empaquetar aplicación
       run: mvn package -DskipTests
       
