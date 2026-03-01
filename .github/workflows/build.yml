@@ -110,6 +110,32 @@ jobs:
           
           echo "✅ Imagen Docker construida exitosamente"
           echo "========================================="
+    
+    # Validar docker-compose.yml
+    - name: Validar docker-compose.yml
+      run: |
+          echo "========================================="
+          echo "PUNTO 2: VALIDAR DOCKER-COMPOSE"
+          echo "========================================="
+          
+          # Verificar que docker-compose.yml existe
+          if [ -f "docker-compose.yml" ]; then
+            echo "✅ docker-compose.yml encontrado"
+          else
+            echo "❌ docker-compose.yml no encontrado"
+            exit 1
+          fi
+          
+          # Validar sintaxis
+          echo "Validando sintaxis..."
+          docker-compose config || exit 1
+          echo "✅ Sintaxis válida"
+          
+          # Verificar servicios definidos
+          echo "Servicios definidos:"
+          docker-compose config --services
+          
+          echo "========================================="
 
     - name: Empaquetar aplicación
       run: mvn package -DskipTests
