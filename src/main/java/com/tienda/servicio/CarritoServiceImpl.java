@@ -75,6 +75,7 @@ public class CarritoServiceImpl implements CarritoService {
      * Limpia completamente el carrito de un usuario.
      * @param usuario El usuario cuyo carrito se limpiará.
      */
+    @SuppressWarnings("null")
     @Override
     public void limpiarCarrito(Usuario usuario) {
         System.out.println("Limpiando carrito para usuario: " + usuario.getCorreo());
@@ -86,6 +87,7 @@ public class CarritoServiceImpl implements CarritoService {
      * Elimina un ítem del carrito por su ID.
      * @param carritoId El ID del ítem del carrito a eliminar.
      */
+    @SuppressWarnings("null")
     @Override
     public void eliminarItemDelCarrito(Long carritoId) {
         carritoRepository.deleteById(carritoId);
@@ -97,8 +99,10 @@ public class CarritoServiceImpl implements CarritoService {
      * @param cantidad La nueva cantidad.
      * @return El objeto Carrito actualizado, o Optional.empty() si no se encuentra.
      */
+    @SuppressWarnings("null")
     @Override
     public Optional<Carrito> actualizarCantidadEnCarrito(Long carritoId, int cantidad) {
+        @SuppressWarnings("null")
         Optional<Carrito> carritoOptional = carritoRepository.findById(carritoId);
         if (carritoOptional.isPresent()) {
             Carrito carrito = carritoOptional.get();
@@ -119,6 +123,7 @@ public class CarritoServiceImpl implements CarritoService {
      * @param usuario El usuario al que se le aplicará el cupón.
      * @param cupon El cupón a aplicar.
      */
+    @SuppressWarnings("null")
     @Override
     public void aplicarCupon(Usuario usuario, Cupon cupon) {
         List<Carrito> items = carritoRepository.findByUsuario(usuario);
@@ -132,6 +137,7 @@ public class CarritoServiceImpl implements CarritoService {
      * Remueve el cupón del carrito de un usuario.
      * @param usuario El usuario al que se le removerá el cupón.
      */
+    @SuppressWarnings("null")
     @Override
     public void removerCupon(Usuario usuario) {
         List<Carrito> items = carritoRepository.findByUsuario(usuario);

@@ -114,6 +114,7 @@ public class OrdenServiceImpl implements OrdenService {
      * @param idOrden El ID de la orden.
      * @param estado El nuevo estado.
      */
+    @SuppressWarnings("null")
     @Override
     public void actualizarEstado(Long idOrden, Orden.EstadoOrden estado) {
         Optional<Orden> ordenOptional = ordenRepository.findById(idOrden);
@@ -146,6 +147,7 @@ public class OrdenServiceImpl implements OrdenService {
      * @param id El ID de la orden.
      * @return La orden encontrada, o Optional.empty() si no existe.
      */
+    @SuppressWarnings("null")
     @Override
     public Optional<Orden> obtenerPorId(Long id) {
         return ordenRepository.findById(id);
