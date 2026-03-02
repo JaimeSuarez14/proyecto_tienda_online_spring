@@ -17,6 +17,7 @@ public class CuponServiceImpl implements CuponService {
 
     /**
      * Busca un cupón por su código (nombreClave).
+     * 
      * @param nombreClave El código del cupón.
      * @return El cupón encontrado, o Optional.empty() si no existe.
      */
@@ -27,6 +28,7 @@ public class CuponServiceImpl implements CuponService {
 
     /**
      * Valida si un cupón es válido (activo y no expirado).
+     * 
      * @param cupon El cupón a validar.
      * @return true si el cupón es válido, false en caso contrario.
      */
@@ -37,7 +39,7 @@ public class CuponServiceImpl implements CuponService {
         }
 
         // Verificar si el cupón está activo
-        if (!cupon.isActivo()) {
+        if (!cupon.getActivo()) {
             return false;
         }
 
@@ -57,5 +59,17 @@ public class CuponServiceImpl implements CuponService {
     @Override
     public void guardar(Cupon cupon) {
         cuponRepository.save(cupon);
+    }
+
+    @Override
+    public void actualizar(Cupon cupon) {
+        Cupon existente = cuponRepository.findById(cupon.getId())
+                .orElseThrow(() -> new RuntimeException("Cupón no encontrado"));
+
+        existente.setNombreClave(cupon.getNombreClave());
+        existente.setPorcentajeDescuento(cupon.getPorcentajeDescuento());
+        existente.setActivo(cupon.getActivo());
+
+        cuponRepository.save(existente);
     }
 }

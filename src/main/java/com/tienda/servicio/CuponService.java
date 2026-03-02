@@ -21,4 +21,5 @@ public interface CuponService {
     boolean esValido(Cupon cupon);
     List<Cupon> obtenerTodos();
     void guardar(Cupon cupon);
+    void actualizar(Cupon cupon);
 }
