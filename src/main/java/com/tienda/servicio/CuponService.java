@@ -1,6 +1,8 @@
 package com.tienda.servicio;
 
 import com.tienda.modelo.Cupon;
+
+import java.util.List;
 import java.util.Optional;
 
 public interface CuponService {
@@ -17,4 +19,6 @@ public interface CuponService {
      * @return true si el cupón es válido, false en caso contrario.
      */
     boolean esValido(Cupon cupon);
+    List<Cupon> obtenerTodos();
+    void guardar(Cupon cupon);
 }

@@ -127,4 +127,6 @@ public class AdminDescuentoController {
             return new ResponseEntity<>(List.of(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+ 
 }
