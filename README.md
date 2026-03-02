@@ -632,3 +632,8 @@ Para preguntas o soporte, contacta al equipo de desarrollo o abre un issue en el
 
 ¡Gracias por usar PlazaChina! 🙏
 ##Integracion continua
+
+**Uso con docker** Marzo 2026
+- Dar privilegios a tu usuario de mysql para recibir de docker
+- docker build -t springboot-app .
+- docker run -p 8080:8080 springboot-app

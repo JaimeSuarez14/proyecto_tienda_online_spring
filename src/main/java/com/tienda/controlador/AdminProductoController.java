@@ -33,7 +33,7 @@ public class AdminProductoController {
         // Spring Security ya asegura que solo los ADMINs accedan a esta ruta.
         List<Producto> productos = productoService.findAllProductos();
         model.addAttribute("productos", productos);
-        return "/admin/admin_productos"; // Esto buscará src/main/resources/templates/admin/admin_productos.html
+        return "admin/admin_productos"; // Esto buscará src/main/resources/templates/admin/admin_productos.html
     }
 
     /**
