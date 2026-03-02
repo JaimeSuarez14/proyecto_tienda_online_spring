@@ -1,6 +1,7 @@
 // Paquete donde se ubicarán tus servicios
 package com.tienda.servicio;
 
+import com.tienda.modelo.Orden;
 import com.tienda.modelo.Pago;
 import com.tienda.modelo.Usuario;
 import com.tienda.modelo.Carrito;
@@ -13,6 +14,7 @@ import java.util.Optional;
 public interface PagoService {
 
     Pago procesarPago(Usuario usuario, Pago.MetodoPago metodoPago, BigDecimal totalPagar, String numeroBoleta, List<Carrito> carritoItems);
+    Pago procesarPagoConOrden(Usuario usuario, Pago.MetodoPago metodoPago, Orden orden);
     Optional<Pago> findPagoById(Long id);
     List<Pago> findPagosByUsuario(Usuario usuario);
 

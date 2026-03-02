@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,12 +12,15 @@
         body {
             font-family: 'Inter', sans-serif;
         }
+
         .gradient-bg {
             background: linear-gradient(to right, #6a11cb 0%, #2575fc 100%);
         }
+
         .card-shadow {
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
+
         .chart-container {
             width: 100%;
             height: 350px;
@@ -29,12 +33,14 @@
             align-items: center;
             justify-content: center;
         }
+
         .chart-svg {
             width: 100%;
             height: 100%;
         }
     </style>
 </head>
+
 <body class="bg-gray-100 flex flex-col min-h-screen">
 
     <nav class="bg-gray-800 shadow-md p-4 flex justify-between items-center text-white">
@@ -42,7 +48,8 @@
             PlazaChina Admin
         </div>
         <div class="flex items-center space-x-4">
-            <span class="text-gray-300">Bienvenido, <span sec:authentication="name" th:text="${nombreAdmin}">Admin</span></span>
+            <span class="text-gray-300">Bienvenido, <span sec:authentication="name"
+                    th:text="${nombreAdmin}">Admin</span></span>
             <a href="/admin/bienvenida" class="text-gray-300 hover:text-white font-medium">Panel Principal</a>
             <a href="/admin/productos" class="text-gray-300 hover:text-white font-medium">Gestionar Productos</a>
             <a href="/admin/descuentos" class="text-gray-300 hover:text-white font-medium">Descuentos</a>
@@ -81,33 +88,70 @@
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Pago</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usuario</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monto Total</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Método Pago</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha Venta</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Número Boleta</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-
+                            <th scope="col"
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                ID Pago</th>
+                            <th scope="col"
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Usuario</th>
+                            <th scope="col"
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Monto Total</th>
+                            <th scope="col"
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Método Pago</th>
+                            <th scope="col"
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Fecha Venta</th>
+                            <th scope="col"
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Número Boleta</th>
+                            <th scope="col"
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Estado</th>
+                            <th scope="col"
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Detalles</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
                         <tr th:each="pago : ${ventas}">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" th:text="${pago.id}"></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"
+                                th:text="${pago.id}"></td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 <span th:text="${pago.usuario.nombre}"></span>
                                 <span th:text="' ' + ${pago.usuario.apellido}"></span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="'S/ ' + ${#numbers.formatDecimal(pago.montoPagado, 1, 'COMMA', 2, 'POINT')}"></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${pago.metodoPago}"></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${#temporals.format(pago.fechaVenta, 'dd/MM/yyyy HH:mm')}"></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${pago.numeroBoleta}"></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                <span th:if="${pago.estado.name() == 'completado'}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800" th:text="${pago.estado}"></span>
-                                <span th:if="${pago.estado.name() == 'pendiente'}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800" th:text="${pago.estado}"></span>
-                                <span th:if="${pago.estado.name() == 'rechazado'}" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800" th:text="${pago.estado}"></span>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
+                                th:text="'S/ ' + ${#numbers.formatDecimal(pago.montoPagado, 1, 'COMMA', 2, 'POINT')}">
                             </td>
-                           
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${pago.metodoPago}">
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
+                                th:text="${#temporals.format(pago.fechaVenta, 'dd/MM/yyyy HH:mm')}"></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
+                                th:text="${pago.numeroBoleta}"></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                <span th:if="${pago.estado.name() == 'completado'}"
+                                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800"
+                                    th:text="${pago.estado}"></span>
+                                <span th:if="${pago.estado.name() == 'pendiente'}"
+                                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800"
+                                    th:text="${pago.estado}"></span>
+                                <span th:if="${pago.estado.name() == 'rechazado'}"
+                                    class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800"
+                                    th:text="${pago.estado}"></span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <button onclick="showSaleDetailsModal(this)" th:data-id="${pago.id}"
+                                    th:data-usuario="${pago.usuario.nombre + ' ' + pago.usuario.apellido}"
+                                    th:data-monto="${pago.montoPagado}" th:data-metodo="${pago.metodoPago}"
+                                    th:data-fecha="${#temporals.format(pago.fechaVenta, 'dd/MM/yyyy HH:mm')}"
+                                    th:data-boleta="${pago.numeroBoleta}" th:data-estado="${pago.estado}"
+                                    class="text-blue-600 hover:text-blue-900">
+                                    <i class="fas fa-info-circle"></i> Ver
+                                </button>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -115,43 +159,110 @@
         </section>
     </main>
 
-    <div id="saleDetailsModal" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 hidden">
-        <div class="bg-white p-8 rounded-2xl shadow-xl max-w-2xl w-full mx-4 relative">
-            <button onclick="hideSaleDetailsModal()" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl font-bold">&times;</button>
-            <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">Detalles de la Venta</h3>
+    <div id="saleDetailsModal"
+        class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 hidden transition-opacity duration-300">
 
-            <div class="space-y-3 text-left mb-6">
-                <p class="text-gray-700"><strong>ID de Pago:</strong> <span id="modal-sale-id"></span></p>
-                <p class="text-gray-700"><strong>Usuario:</strong> <span id="modal-sale-user"></span></p>
-                <p class="text-gray-700"><strong>Monto Total:</strong> <span id="modal-sale-amount"></span></p>
-                <p class="text-gray-700"><strong>Método de Pago:</strong> <span id="modal-sale-method"></span></p>
-                <p class="text-gray-700"><strong>Fecha de Venta:</strong> <span id="modal-sale-date"></span></p>
-                <p class="text-gray-700"><strong>Número de Boleta:</strong> <span id="modal-sale-invoice"></span></p>
-                <p class="text-gray-700"><strong>Estado:</strong> <span id="modal-sale-status"></span></p>
+        <!-- Card -->
+        <div class="bg-white w-full max-w-4xl mx-4 rounded-3xl shadow-2xl relative overflow-hidden animate-scaleIn">
+
+            <!-- Header -->
+            <div
+                class="flex justify-between items-center px-8 py-6 border-b bg-gradient-to-r from-indigo-600 to-blue-600">
+                <h3 class="text-2xl font-bold text-white tracking-wide">
+                    Detalles de la Venta
+                </h3>
+
+                <button onclick="hideSaleDetailsModal()"
+                    class="text-white/80 hover:text-white text-3xl font-light transition">
+                    &times;
+                </button>
             </div>
 
-            <h4 class="text-xl font-semibold text-gray-700 mb-4">Productos Vendidos:</h4>
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Producto</th>
-                            <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cantidad</th>
-                            <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Precio Unitario</th>
-                            <th scope="col" class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subtotal</th>
-                        </tr>
-                    </thead>
-                    <tbody id="modal-sale-details-body" class="bg-white divide-y divide-gray-200">
-                    </tbody>
-                </table>
+            <!-- Body -->
+            <div class="p-8 space-y-8">
+
+                <!-- Info Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                    <div class="bg-gray-50 rounded-xl p-4 shadow-sm">
+                        <p class="text-sm text-gray-500">ID de Pago</p>
+                        <p id="modal-sale-id" class="text-lg font-semibold text-gray-800"></p>
+                    </div>
+
+                    <div class="bg-gray-50 rounded-xl p-4 shadow-sm">
+                        <p class="text-sm text-gray-500">Usuario</p>
+                        <p id="modal-sale-user" class="text-lg font-semibold text-gray-800"></p>
+                    </div>
+
+                    <div class="bg-gray-50 rounded-xl p-4 shadow-sm">
+                        <p class="text-sm text-gray-500">Monto Total</p>
+                        <p id="modal-sale-amount" class="text-lg font-bold text-green-600"></p>
+                    </div>
+
+                    <div class="bg-gray-50 rounded-xl p-4 shadow-sm">
+                        <p class="text-sm text-gray-500">Método de Pago</p>
+                        <p id="modal-sale-method" class="text-lg font-semibold text-gray-800"></p>
+                    </div>
+
+                    <div class="bg-gray-50 rounded-xl p-4 shadow-sm">
+                        <p class="text-sm text-gray-500">Fecha de Venta</p>
+                        <p id="modal-sale-date" class="text-lg font-semibold text-gray-800"></p>
+                    </div>
+
+                    <div class="bg-gray-50 rounded-xl p-4 shadow-sm">
+                        <p class="text-sm text-gray-500">Número de Boleta</p>
+                        <p id="modal-sale-invoice" class="text-lg font-semibold text-gray-800"></p>
+                    </div>
+
+                    <!-- Estado como badge -->
+                    <div class="md:col-span-2 bg-gray-50 rounded-xl p-4 shadow-sm">
+                        <p class="text-sm text-gray-500 mb-1">Estado</p>
+                        <span id="modal-sale-status"
+                            class="inline-block px-4 py-1 text-sm font-semibold rounded-full bg-green-100 text-green-700">
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Tabla -->
+                <div>
+                    <h4 class="text-xl font-semibold text-gray-800 mb-4">
+                        Productos Vendidos
+                    </h4>
+
+                    <div class="overflow-hidden rounded-xl border border-gray-200">
+                        <table class="min-w-full text-sm">
+                            <thead class="bg-gray-100 text-gray-600 uppercase text-xs">
+                                <tr>
+                                    <th class="px-6 py-3 text-left">Producto</th>
+                                    <th class="px-6 py-3 text-left">Cantidad</th>
+                                    <th class="px-6 py-3 text-left">Precio Unitario</th>
+                                    <th class="px-6 py-3 text-left">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modal-sale-details-body" class="divide-y divide-gray-200 bg-white">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
             </div>
+
+            <!-- Footer -->
+            <div class="px-8 py-4 border-t bg-gray-50 flex justify-end">
+                <button onclick="hideSaleDetailsModal()"
+                    class="px-6 py-2 rounded-xl bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition shadow-md">
+                    Cerrar
+                </button>
+            </div>
+
         </div>
     </div>
 
     <div id="messageModal" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 hidden">
         <div class="bg-white p-6 rounded-lg shadow-lg text-center">
             <p id="messageText" class="text-lg font-semibold mb-4"></p>
-            <button onclick="hideMessageModal()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg">Cerrar</button>
+            <button onclick="hideMessageModal()"
+                class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg">Cerrar</button>
         </div>
     </div>
 
@@ -177,7 +288,7 @@
             document.getElementById('messageModal').classList.add('hidden');
         }
 
-        window.onclick = function(event) {
+        window.onclick = function (event) {
             const messageModal = document.getElementById('messageModal');
             const saleDetailsModal = document.getElementById('saleDetailsModal');
             if (event.target == messageModal) {
@@ -305,7 +416,9 @@
 
         function showSaleDetailsModal(button) {
             const modal = document.getElementById('saleDetailsModal');
-            document.getElementById('modal-sale-id').innerText = button.dataset.id;
+            const pagoId = button.dataset.id;
+
+            document.getElementById('modal-sale-id').innerText = pagoId;
             document.getElementById('modal-sale-user').innerText = button.dataset.usuario;
             document.getElementById('modal-sale-amount').innerText = `S/ ${parseFloat(button.dataset.monto).toFixed(2)}`;
             document.getElementById('modal-sale-method').innerText = button.dataset.metodo;
@@ -314,7 +427,33 @@
             document.getElementById('modal-sale-status').innerText = button.dataset.estado;
 
             const detailsBody = document.getElementById('modal-sale-details-body');
-            detailsBody.innerHTML = '<tr><td colspan="4" class="px-4 py-2 text-center text-sm text-gray-500">Detalles de productos no disponibles.</td></tr>';
+            detailsBody.innerHTML = '<tr><td colspan="4" class="px-4 py-2 text-center text-sm text-gray-500">Cargando...</td></tr>';
+
+            fetch(`/admin/ventas/detalles/${pagoId}`)
+                .then(response => response.json())
+                .then(data => {
+                    detailsBody.innerHTML = ''; // Limpiar el cuerpo de la tabla
+                    if (data.length === 0) {
+                        detailsBody.innerHTML = '<tr><td colspan="4" class="px-4 py-2 text-center text-sm text-gray-500">No se encontraron detalles para esta venta.</td></tr>';
+                        return;
+                    }
+                    data.forEach(detalle => {
+                        const subtotal = detalle.cantidad * detalle.precioUnitario;
+                        const row = `
+                            <tr class="border-b">
+                                <td class="px-4 py-2 text-sm text-gray-700">${detalle.nombreProducto}</td>
+                                <td class="px-4 py-2 text-sm text-gray-700 text-center">${detalle.cantidad}</td>
+                                <td class="px-4 py-2 text-sm text-gray-700 text-right">S/ ${detalle.precioUnitario.toFixed(2)}</td>
+                                <td class="px-4 py-2 text-sm text-gray-700 text-right font-semibold">S/ ${subtotal.toFixed(2)}</td>
+                            </tr>
+                        `;
+                        detailsBody.innerHTML += row;
+                    });
+                })
+                .catch(error => {
+                    console.error('Error al cargar los detalles de la venta:', error);
+                    detailsBody.innerHTML = '<tr><td colspan="4" class="px-4 py-2 text-center text-sm text-red-500">Error al cargar los detalles.</td></tr>';
+                });
 
             modal.classList.remove('hidden');
         }
@@ -323,7 +462,7 @@
             document.getElementById('saleDetailsModal').classList.add('hidden');
         }
 
-        window.onload = function() {
+        window.onload = function () {
             drawDailyEarningsChart();
             drawMonthlyEarningsChart();
         };
@@ -337,4 +476,5 @@
         /*]]>*/
     </script>
 </body>
+
 </html>

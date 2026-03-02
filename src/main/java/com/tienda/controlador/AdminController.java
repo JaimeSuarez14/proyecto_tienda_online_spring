@@ -7,13 +7,19 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
+import com.tienda.dto.DetalleVentaDTO;
+import com.tienda.modelo.DetalleVenta;
+import com.tienda.repositorio.DetalleVentaRepository;
 
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 public class AdminController {
@@ -21,6 +27,20 @@ public class AdminController {
     @Autowired
     private PagoService pagoService;
 
+    @Autowired
+    private DetalleVentaRepository detalleVentaRepository;
+
+    @GetMapping("/admin/ventas/detalles/{pagoId}")
+    @ResponseBody
+    public List<DetalleVentaDTO> getDetallesVenta(@PathVariable Long pagoId) {
+        List<DetalleVenta> detalles = detalleVentaRepository.findByPagoId(pagoId);
+        return detalles.stream()
+                .map(detalle -> new DetalleVentaDTO(
+                        detalle.getProducto().getNombre(),
+                        detalle.getCantidad(),
+                        detalle.getPrecioUnitario()))
+                .collect(Collectors.toList());
+    }
 
     @GetMapping("/admin/bienvenida")
     public String bienvenidaAdmin(Model model, HttpSession session) {

@@ -51,19 +51,23 @@ public class PagoController {
      */
     @GetMapping("/pago")
     public String showPaymentPage(
-            @RequestParam(value = "numeroOrden", required = false) String numeroOrden,
+            @RequestParam("numeroOrden") String numeroOrden,
             @RequestParam(value = "metodo", required = false) String metodo, 
             Model model, 
             HttpSession session, 
             RedirectAttributes redirectAttributes) {
+        System.out.println("LOG: Mostrando página de pago para Orden N°: " + numeroOrden + " con método: " + metodo);
+
         Usuario usuarioAutenticado = (Usuario) session.getAttribute("usuarioAutenticado");
 
         if (usuarioAutenticado == null) {
+            System.out.println("LOG: Usuario no autenticado. Redirigiendo a login.");
             return "redirect:/login"; // Redirigir al login si no está autenticado
         }
 
         // Validar que se haya enviado el método de pago
         if (metodo == null || metodo.trim().isEmpty()) {
+            System.out.println("LOG: ERROR - Método de pago no especificado.");
             redirectAttributes.addFlashAttribute("error", "Debes seleccionar un método de pago.");
             return "redirect:/carrito";
         }
@@ -74,12 +78,16 @@ public class PagoController {
             Optional<Orden> ordenOptional = ordenService.buscarPorNumeroOrden(numeroOrden);
             if (ordenOptional.isPresent()) {
                 orden = ordenOptional.get();
+                System.out.println("LOG: Orden encontrada en la BD: " + orden.getNumeroOrden());
+            } else {
+                System.out.println("LOG: ERROR - Orden N° " + numeroOrden + " no encontrada en la BD.");
             }
         }
 
         List<Carrito> carritoItems = carritoService.findByUsuario(usuarioAutenticado);
 
         if (carritoItems.isEmpty() && orden == null) {
+            System.out.println("LOG: ERROR - Ni el carrito ni la orden tienen items.");
             redirectAttributes.addFlashAttribute("error", "Tu carrito está vacío. Agrega productos antes de pagar.");
             return "redirect:/carrito";
         }
@@ -90,6 +98,7 @@ public class PagoController {
         if (orden != null) {
             // Usar el total de la orden
             totalConDescuento = orden.getTotal();
+            System.out.println("LOG: Usando total de la orden: " + totalConDescuento);
         } else {
             // Calcular desde el carrito
             BigDecimal subtotal = BigDecimal.ZERO;
@@ -108,10 +117,12 @@ public class PagoController {
             }
 
             totalConDescuento = subtotal.subtract(totalDescuento);
+            System.out.println("LOG: Usando total del carrito: " + totalConDescuento);
         }
 
         // Generar un número de boleta simple (puedes usar una lógica más robusta en producción)
         String numeroBoleta = "BOLETA-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        System.out.println("LOG: Número de boleta generado: " + numeroBoleta);
 
         // Procesar la pasarela de pago
         Pago.MetodoPago metodoPagoEnum = Pago.MetodoPago.valueOf(metodo.toLowerCase());
@@ -124,6 +135,7 @@ public class PagoController {
         model.addAttribute("carritoCount", carritoService.countItemsInCarrito(usuarioAutenticado));
         model.addAttribute("resultadoPasarela", resultadoPasarela);
 
+        System.out.println("LOG: Renderizando página de pago.");
         return "pago"; // Esto buscará src/main/resources/templates/pago.html
     }
 
@@ -139,50 +151,65 @@ public class PagoController {
      */
     @PostMapping("/pago/confirmar")
     public String confirmPayment(
-            @RequestParam(value = "numeroOrden", required = false) String numeroOrden,
+            @RequestParam("numeroOrden") String numeroOrden,
             @RequestParam("metodoPago") String metodoPago,
             @RequestParam("totalPagar") BigDecimal totalPagar,
             @RequestParam("numeroBoleta") String numeroBoleta,
             HttpSession session,
             RedirectAttributes redirectAttributes) {
 
+        System.out.println("LOG: Iniciando confirmación de pago.");
+        System.out.println("LOG: > numeroOrden: " + numeroOrden);
+        System.out.println("LOG: > metodoPago: " + metodoPago);
+        System.out.println("LOG: > totalPagar: " + totalPagar);
+        System.out.println("LOG: > numeroBoleta: " + numeroBoleta);
+
         Usuario usuarioAutenticado = (Usuario) session.getAttribute("usuarioAutenticado");
 
         if (usuarioAutenticado == null) {
+            System.out.println("LOG: ERROR - Usuario no autenticado en confirmación. Redirigiendo a login.");
             return "redirect:/login";
         }
 
-        List<Carrito> carritoItems = carritoService.findByUsuario(usuarioAutenticado);
-
-        if (carritoItems.isEmpty()) {
-            redirectAttributes.addFlashAttribute("error", "Tu carrito está vacío. No se pudo procesar el pago.");
+        // Buscar la orden por su número
+        Optional<Orden> ordenOptional = ordenService.buscarPorNumeroOrden(numeroOrden);
+        if (ordenOptional.isEmpty()) {
+            System.out.println("LOG: ERROR - La orden N° " + numeroOrden + " no fue encontrada. No se pudo procesar el pago.");
+            redirectAttributes.addFlashAttribute("error", "La orden no fue encontrada. No se pudo procesar el pago.");
             return "redirect:/carrito";
+        }
+
+        Orden orden = ordenOptional.get();
+        System.out.println("LOG: Orden a procesar encontrada: " + orden.getNumeroOrden());
+
+        // Validar que la orden no haya sido pagada ya
+        if (orden.getEstado() == Orden.EstadoOrden.pagada) {
+            System.out.println("LOG: ADVERTENCIA - La orden N° " + numeroOrden + " ya ha sido pagada.");
+            redirectAttributes.addFlashAttribute("error", "Esta orden ya ha sido pagada.");
+            return "redirect:/pago_exitoso"; // O a una página de "mis órdenes"
         }
 
         try {
             // Convertir el string del método de pago a su Enum correspondiente
             Pago.MetodoPago metodoPagoEnum = Pago.MetodoPago.valueOf(metodoPago.toLowerCase());
 
-            pagoService.procesarPago(usuarioAutenticado, metodoPagoEnum, totalPagar, numeroBoleta, carritoItems);
+            // Procesar el pago usando los detalles de la orden
+            System.out.println("LOG: Llamando a pagoService.procesarPagoConOrden...");
+            pagoService.procesarPagoConOrden(usuarioAutenticado, metodoPagoEnum, orden);
+            System.out.println("LOG: pagoService.procesarPagoConOrden ejecutado exitosamente.");
 
-            // Si hay número de orden, actualizarla a estado PAGADA
-            if (numeroOrden != null && !numeroOrden.isEmpty()) {
-                Optional<Orden> ordenOptional = ordenService.buscarPorNumeroOrden(numeroOrden);
-                if (ordenOptional.isPresent()) {
-                    Orden orden = ordenOptional.get();
-                    ordenService.actualizarEstado(orden.getId(), Orden.EstadoOrden.pagada);
-                }
-            }
+            // Actualizar el estado de la orden a PAGADA
+            System.out.println("LOG: Actualizando estado de la orden a PAGADA.");
+            ordenService.actualizarEstado(orden.getId(), Orden.EstadoOrden.pagada);
 
-            redirectAttributes.addFlashAttribute("numeroBoleta", numeroBoleta); // Pasar la boleta a la página de éxito
-            return "redirect:/pago_exitoso"; // Redirigir a la nueva página de éxito de pago
-        } catch (RuntimeException e) { // Este catch ya maneja IllegalArgumentException
-            System.err.println("Error al procesar el pago: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("numeroBoleta", numeroBoleta);
+            System.out.println("LOG: Redirigiendo a página de pago exitoso.");
+            return "redirect:/pago_exitoso";
+        } catch (RuntimeException e) {
+            System.err.println("LOG: ERROR CRÍTICO al procesar el pago: " + e.getMessage());
             redirectAttributes.addFlashAttribute("error", "Error al procesar el pago: " + e.getMessage());
-            return "redirect:/carrito"; // Volver al carrito con un mensaje de error
+            return "redirect:/carrito";
         }
-        // El bloque catch (IllegalArgumentException e) ya no es necesario aquí
-        // porque RuntimeException es su superclase y ya lo captura.
     }
 
     /**

@@ -45,13 +45,13 @@ public class Producto {
     @Column(nullable = false)
     private String unidadMedida; // kg, litros, unidades, etc.
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String genero = "";
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String talla = "";
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String tela = "";
 
     @OneToMany(mappedBy = "producto")
