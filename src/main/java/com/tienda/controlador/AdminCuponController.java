@@ -21,14 +21,21 @@ public class AdminCuponController {
 
     @GetMapping
     public String listarCupones(Model model) {
-        List<Cupon> cupones = cuponService.obtenerTodos();
-        model.addAttribute("cupones", cupones);
+        model.addAttribute("cupones", cuponService.obtenerTodos());
+        model.addAttribute("cuponForm", new Cupon());
         return "admin/admin_cupones";
     }
 
     @PostMapping
     public String guardarCupon(@ModelAttribute Cupon cupon) {
         cuponService.guardar(cupon);
+        return "redirect:/admin/cupones";
+    }
+
+    @PostMapping("/actualizar")
+    public String actualizarCupon(@ModelAttribute Cupon cupon) {
+        System.out.println("Actualizando cupón con ID: " + cupon);
+        cuponService.actualizar(cupon);
         return "redirect:/admin/cupones";
     }
 }
