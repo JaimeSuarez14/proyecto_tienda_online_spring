@@ -1,7 +1,16 @@
 package com.tienda.modelo;
 
-import jakarta.persistence.*;
 import java.util.List;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "usuarios")
@@ -30,6 +39,9 @@ public class Usuario {
     @Column(nullable = false)
     private TipoUsuario tipo;
 
+    @Column(nullable = false)
+    private boolean isActive = true;
+
     @OneToMany(mappedBy = "usuario")
     private List<Carrito> carritos;
 
@@ -52,6 +64,7 @@ public class Usuario {
         this.correo = correo;
         this.contrasena = contrasena;
         this.tipo = tipo;
+        this.isActive = true; // Asegurar que siempre sea true en la creación
     }
 
     // Getters y setters
@@ -61,6 +74,13 @@ public class Usuario {
 
     public void setId(Long id) {
         this.id = id;
+    }
+    public boolean getIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(boolean isActive) {
+        this.isActive = isActive;
     }
 
     public String getDni() {
@@ -109,6 +129,14 @@ public class Usuario {
 
     public void setTipo(TipoUsuario tipo) {
         this.tipo = tipo;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
     }
 
     public List<Carrito> getCarritos() {

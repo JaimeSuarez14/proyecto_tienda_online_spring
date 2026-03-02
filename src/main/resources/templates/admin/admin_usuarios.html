@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,15 +11,17 @@
         body {
             font-family: 'Inter', sans-serif;
         }
+
         .gradient-bg {
             background: linear-gradient(to right, #6a11cb 0%, #2575fc 100%);
         }
+
         .card-shadow {
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
-        
     </style>
 </head>
+
 <body class="bg-gray-100 flex flex-col min-h-screen">
 
     <nav class="bg-gray-800 shadow-md p-4 flex justify-between items-center text-white">
@@ -26,7 +29,8 @@
             Plaza China Admin
         </div>
         <div class="flex items-center space-x-4">
-            <span class="text-gray-300">Bienvenido, <span sec:authentication="name" th:text="${nombreAdmin}">Admin</span></span>
+            <span class="text-gray-300">Bienvenido, <span sec:authentication="name"
+                    th:text="${nombreAdmin}">Admin</span></span>
             <a href="/admin/bienvenida" class="text-gray-300 hover:text-white font-medium">Panel Principal</a>
             <a href="/admin/productos" class="text-gray-300 hover:text-white font-medium">Productos</a>
             <a href="/admin/descuentos" class="text-gray-300 hover:text-white font-medium">Descuentos</a>
@@ -47,15 +51,19 @@
         <section class="mb-10">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-3xl font-semibold text-gray-800">Listado de Usuarios</h2>
-                <button onclick="openUserModal()" class="px-6 py-3 rounded-xl text-white font-semibold shadow-lg transition duration-300 ease-in-out transform hover:scale-105 bg-blue-600 hover:bg-blue-700">
+                <button onclick="openUserModal()"
+                    class="px-6 py-3 rounded-xl text-white font-semibold shadow-lg transition duration-300 ease-in-out transform hover:scale-105 bg-blue-600 hover:bg-blue-700">
                     <i class="fas fa-user-plus mr-2"></i> Añadir Nuevo Usuario
                 </button>
             </div>
 
-            <div th:if="${successMessage}" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg relative mb-6" role="alert">
+            <div th:if="${successMessage}"
+                class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg relative mb-6"
+                role="alert">
                 <span class="block sm:inline" th:text="${successMessage}"></span>
             </div>
-            <div th:if="${errorMessage}" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative mb-6" role="alert">
+            <div th:if="${errorMessage}"
+                class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative mb-6" role="alert">
                 <span class="block sm:inline" th:text="${errorMessage}"></span>
             </div>
 
@@ -63,35 +71,51 @@
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DNI</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Apellido</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Correo</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                            <th scope="col"
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                ID</th>
+                            <th scope="col"
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                DNI</th>
+                            <th scope="col"
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Nombre</th>
+                            <th scope="col"
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Apellido</th>
+                            <th scope="col"
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Correo</th>
+                            <th scope="col"
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Tipo</th>
+                            <th scope="col"
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Acciones</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
                         <tr th:each="usuario : ${usuarios}">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" th:text="${usuario.id}"></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"
+                                th:text="${usuario.id}"></td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${usuario.dni}"></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${usuario.nombre}"></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${usuario.apellido}"></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${usuario.correo}"></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${usuario.tipo}"></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${usuario.nombre}">
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${usuario.apellido}">
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${usuario.correo}">
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${usuario.tipo}">
+                            </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <button onclick="editUser(this)"
-                                        th:data-id="${usuario.id}"
-                                        th:data-dni="${usuario.dni}"
-                                        th:data-nombre="${usuario.nombre}"
-                                        th:data-apellido="${usuario.apellido}"
-                                        th:data-correo="${usuario.correo}"
-                                        th:data-tipo="${usuario.tipo}"
-                                        class="text-indigo-600 hover:text-indigo-900 mr-4">
+                                <button onclick="editUser(this)" th:data-id="${usuario.id}" th:data-dni="${usuario.dni}"
+                                    th:data-nombre="${usuario.nombre}" th:data-apellido="${usuario.apellido}"
+                                    th:data-correo="${usuario.correo}" th:data-tipo="${usuario.tipo}"
+                                    class="text-indigo-600 hover:text-indigo-900 mr-4">
                                     <i class="fas fa-user-edit"></i> Editar
                                 </button>
-                                <button onclick="deleteUser([[${usuario.id}]])" class="text-red-600 hover:text-red-900">
+                                <button onclick="removeItem(this)" th:data-id="${usuario.id}"
+                                    class="text-red-600 hover:text-red-900">
                                     <i class="fas fa-user-times"></i> Eliminar
                                 </button>
                             </td>
@@ -104,7 +128,8 @@
 
     <div id="userModal" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 hidden">
         <div class="bg-white p-8 rounded-2xl shadow-xl max-w-xl w-full mx-4 relative">
-            <button onclick="closeUserModal()" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl font-bold">&times;</button>
+            <button onclick="closeUserModal()"
+                class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl font-bold">&times;</button>
             <h3 id="modalTitle" class="text-2xl font-bold text-gray-800 mb-6 text-center">Añadir Nuevo Usuario</h3>
 
             <form id="userForm" onsubmit="submitUserForm(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -112,38 +137,49 @@
 
                 <div>
                     <label for="dni" class="block text-sm font-medium text-gray-700 mb-1">DNI:</label>
-                    <input type="text" id="dni" name="dni" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ej. 12345678"
-                           pattern="[0-9]{8,20}" title="Solo números, entre 8 y 20 caracteres">
+                    <input type="text" id="dni" name="dni" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Ej. 12345678" pattern="[0-9]{8,20}" title="Solo números, entre 8 y 20 caracteres">
                 </div>
                 <div>
                     <label for="nombre" class="block text-sm font-medium text-gray-700 mb-1">Nombre:</label>
-                    <input type="text" id="nombre" name="nombre" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Nombre">
+                    <input type="text" id="nombre" name="nombre" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Nombre">
                 </div>
                 <div>
                     <label for="apellido" class="block text-sm font-medium text-gray-700 mb-1">Apellido:</label>
-                    <input type="text" id="apellido" name="apellido" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Apellido">
+                    <input type="text" id="apellido" name="apellido" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Apellido">
                 </div>
                 <div>
                     <label for="correo" class="block text-sm font-medium text-gray-700 mb-1">Correo Electrónico:</label>
-                    <input type="email" id="correo" name="correo" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="correo@ejemplo.com">
+                    <input type="email" id="correo" name="correo" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="correo@ejemplo.com">
                 </div>
                 <div>
                     <label for="contrasena" class="block text-sm font-medium text-gray-700 mb-1">Contraseña:</label>
-                    <input type="password" id="contrasena" name="contrasena" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="••••••••"
-                           minlength="6">
+                    <input type="password" id="contrasena" name="contrasena"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="••••••••" minlength="6">
                     <p class="text-xs text-gray-500 mt-1">Dejar en blanco para no cambiar la contraseña.</p>
                 </div>
                 <div>
                     <label for="tipo" class="block text-sm font-medium text-gray-700 mb-1">Tipo de Usuario:</label>
-                    <select id="tipo" name="tipo" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <select id="tipo" name="tipo" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                         <option value="usuario">Usuario</option>
                         <option value="admin">Admin</option>
                     </select>
                 </div>
 
                 <div class="md:col-span-2 flex justify-end mt-6">
-                    <button type="button" onclick="closeUserModal()" class="px-4 py-2 rounded-xl text-blue-700 font-semibold border-2 border-blue-700 hover:bg-blue-50 transition duration-300 ease-in-out mr-4">Cancelar</button>
-                    <button type="submit" class="px-6 py-3 rounded-xl text-white font-semibold shadow-lg transition duration-300 ease-in-out transform hover:scale-105 bg-green-600 hover:bg-green-700">
+                    <button type="button" onclick="closeUserModal()"
+                        class="px-4 py-2 rounded-xl text-blue-700 font-semibold border-2 border-blue-700 hover:bg-blue-50 transition duration-300 ease-in-out mr-4">Cancelar</button>
+                    <button type="submit"
+                        class="px-6 py-3 rounded-xl text-white font-semibold shadow-lg transition duration-300 ease-in-out transform hover:scale-105 bg-green-600 hover:bg-green-700">
                         <i class="fas fa-save mr-2"></i> Guardar Usuario
                     </button>
                 </div>
@@ -154,7 +190,28 @@
     <div id="messageModal" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 hidden">
         <div class="bg-white p-6 rounded-lg shadow-lg text-center">
             <p id="messageText" class="text-lg font-semibold mb-4"></p>
-            <button onclick="hideMessageModal()" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg">Cerrar</button>
+            <button onclick="hideMessageModal()"
+                class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg">Cerrar</button>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmación para Eliminar -->
+    <div id="confirmDeleteModal"
+        class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 hidden">
+        <div class="bg-white p-8 rounded-lg shadow-lg text-center max-w-md">
+            <i class="fas fa-exclamation-triangle text-red-500 text-5xl mb-4"></i>
+            <h3 class="text-2xl font-bold text-gray-800 mb-4">Confirmar Eliminación</h3>
+            <p class="text-gray-600 mb-6">¿Estás seguro de que deseas eliminar este usuario?</p>
+            <div class="flex gap-4 justify-center">
+                <button onclick="cancelDeleteItem()"
+                    class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-lg transition">
+                    Cancelar
+                </button>
+                <button onclick="confirmDeleteItem()"
+                    class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-6 rounded-lg transition">
+                    Eliminar
+                </button>
+            </div>
         </div>
     </div>
 
@@ -180,7 +237,7 @@
         }
 
         // Cierra el modal de mensajes si se hace clic fuera de él
-        window.onclick = function(event) {
+        window.onclick = function (event) {
             const messageModal = document.getElementById('messageModal');
             const userModal = document.getElementById('userModal');
             if (event.target == messageModal) {
@@ -264,15 +321,20 @@
                 showMessageModal('Error de conexión. Inténtalo de nuevo.', false);
             }
         }
-
+        let itemIdToDelete = '';
         // Eliminar un usuario
-        async function deleteUser(userId) {
-            if (!confirm('¿Estás seguro de que quieres eliminar este usuario? Esta acción es irreversible.')) {
+        async function confirmDeleteItem(button) {
+            hideConfirmDeleteModal();
+            const userId = itemIdToDelete;
+            
+            if (!itemIdToDelete || itemIdToDelete === 'null') {
+                console.error('itemIdToDelete no es válido:', itemIdToDelete);
+                showMessageModal('Error: No se pudo identificar el usuario a eliminar.', false);
                 return;
             }
 
             try {
-                const response = await fetch('/admin/usuarios/eliminar/' + userId, {
+                const response = await fetch('/admin/usuarios/eliminar/' + Number(userId), {
                     method: 'DELETE'
                 });
 
@@ -290,7 +352,33 @@
                 showMessageModal('Error de conexión. Inténtalo de nuevo.', false);
             }
         }
+
+        function showConfirmDeleteModal() {
+            document.getElementById('confirmDeleteModal').classList.remove('hidden');
+        }
+
+         function cancelDeleteItem() {
+            hideConfirmDeleteModal();
+        }
+
+        function hideConfirmDeleteModal() {
+            document.getElementById('confirmDeleteModal').classList.add('hidden');
+        }
+
+        function removeItem(button) {
+            itemIdToDelete = button.dataset.id;
+            console.log('itemIdToDelete:', itemIdToDelete);
+
+            if (!itemIdToDelete) {
+                console.error('No se pudo obtener el itemId del botón');
+                showMessageModal('Error al obtener el ID del producto.', false);
+                return;
+            }
+
+            showConfirmDeleteModal();
+        }
         /*]]>*/
     </script>
 </body>
+
 </html>

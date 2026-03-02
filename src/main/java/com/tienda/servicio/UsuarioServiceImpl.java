@@ -22,7 +22,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     public List<Usuario> findAllUsuarios() {
-        return usuarioRepository.findAll();
+        return usuarioRepository.findByIsActiveTrue();
     }
 
     @Override
@@ -132,7 +132,19 @@ public class UsuarioServiceImpl implements UsuarioService {
      */
     @Override
     public void deleteUsuario(Long id) {
-        usuarioRepository.deleteById(Objects.requireNonNull(id));
+        var user = usuarioRepository.findById(Objects.requireNonNull(id));
+        // Verificar si el usuario existe
+        if (!user.isPresent()) {
+            throw new RuntimeException("Usuario a eliminar no encontrado.");
+        }
+
+        // Verificar si el usuario está activo
+        //if(user.get().isActive()){
+        //    throw new RuntimeException("No se puede eliminar un usuario activo.");
+        //}
+        // Desactivar el usuario
+        user.get().setIsActive(false);
+        usuarioRepository.save(user.get());
     }
 
     /**
